@@ -21,7 +21,7 @@ const loadNews = async () => {
     setLoading(true);
     try {
       const res = await fetch(
-        'https://gnews.io/api/v4/top-headlines?lang=ko&country=kr&max=4&apikey=' + GNEWS_API_KEY
+        '/api/news'
       );
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
