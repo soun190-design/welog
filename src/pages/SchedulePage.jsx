@@ -15,10 +15,9 @@ function getMonthDays(year, month) {
   var daysInMonth = new Date(year, month + 1, 0).getDate();
   var days = [];
   for (var i = 0; i < firstDay; i++) days.push(null);
-  for (var i = 1; i <= daysInMonth; i++) days.push(i);
+  for (var j = 1; j <= daysInMonth; j++) days.push(j);
   return days;
 }
-
 function getWeekDays(date) {
   var day = date.getDay();
   var start = new Date(date);
