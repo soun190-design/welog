@@ -58,9 +58,9 @@ export default function BudgetPage() {
       var snap = await getDoc(ref);
       if (snap.exists()) {
         var data = snap.data();
-        setSalary(String(data.income && data.income.salary || ''));
-        setOvertimeHours(String(data.income && data.income.overtimeHours || ''));
-        setExtras(data.income && data.income.extras || []);
+        setSalary(String((data.income && data.income.salary) || ''));
+setOvertimeHours(String((data.income && data.income.overtimeHours) || ''));
+setExtras((data.income && data.income.extras) || []);
         setFixedCosts(data.fixedCosts || []);
         setExpenses(data.variableExpenses || []);
         setVariableGoal(String(data.variableGoal || ''));
