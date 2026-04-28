@@ -6,8 +6,8 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const TODAY = new Date().toISOString().split('T')[0];
-const YESTERDAY = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function getYesterday() { return new Date(Date.now() - 86400000).toISOString().split('T')[0]; }
 
 function formatDate() {
   return new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
@@ -99,7 +99,7 @@ function DailyRecord() {
   useState(function() {
     if (!user || !couple) return;
     var load = async function() {
-      var ref = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + user.uid);
+      var ref = doc(db, 'couples', couple.id, 'daily', getToday() + '_' + user.uid);
       var snap = await getDoc(ref);
       if (snap.exists()) {
         var data = snap.data();
@@ -116,7 +116,7 @@ function DailyRecord() {
   useState(function() {
     if (!partnerUid || !couple) return;
     var load = async function() {
-      var ref = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + partnerUid);
+      var ref = doc(db, 'couples', couple.id, 'daily', getToday() + '_' + partnerUid);
       var snap = await getDoc(ref);
       if (snap.exists()) setPartnerRecord(snap.data());
     };
@@ -133,9 +133,9 @@ function DailyRecord() {
       setAffirmations(list);
       var todayMap = {};
       list.forEach(function(a) {
-        var todayEntry = a.history && a.history.find(function(h) { return h.date === TODAY; });
+        var todayEntry = a.history && a.history.find(function(h) { return h.date === getToday(); });
         var historyList = a.history || [];
-        var yesterdayEntry = historyList.find(function(h) { return h.date === YESTERDAY; }) || (historyList.length > 0 ? historyList[historyList.length - 1] : null);
+        var yesterdayEntry = historyList.find(function(h) { return h.date === getYesterday(); }) || (historyList.length > 0 ? historyList[historyList.length - 1] : null);
         todayMap[a.id] = {
           today: (todayEntry && todayEntry.text) || '',
           yesterday: (yesterdayEntry && yesterdayEntry.text) || '',
@@ -148,7 +148,7 @@ function DailyRecord() {
 
   var saveToFirestore = async function(field, value) {
     if (!user || !couple) return;
-    var ref = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + user.uid);
+    var ref = doc(db, 'couples', couple.id, 'daily', getToday() + '_' + user.uid);
     var snap = await getDoc(ref);
     var existing = snap.exists() ? snap.data() : {};
     await setDoc(ref, Object.assign({}, existing, {
@@ -175,8 +175,8 @@ function DailyRecord() {
       var ref = doc(db, 'users', user.uid, 'affirmations', affirmationId);
       var snap = await getDoc(ref);
       var data = snap.data();
-      var history = (data.history || []).filter(function(h) { return h.date !== TODAY; });
-      history.push({ text: text, date: TODAY });
+      var history = (data.history || []).filter(function(h) { return h.date !== getToday(); });
+      history.push({ text: text, date: getToday() });
       await setDoc(ref, Object.assign({}, data, { history: history }));
     } catch (e) { console.error(e); }
   };

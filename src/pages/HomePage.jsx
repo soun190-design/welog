@@ -4,8 +4,8 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const TODAY = new Date().toISOString().split('T')[0];
-const THIS_MONTH = new Date().toISOString().substring(0, 7);
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function getThisMonth() { return new Date().toISOString().substring(0, 7); }
 
 const DAILY_QUESTIONS = [
   { category: '경제/재테크', question: '요즘 가장 잘한 소비가 뭐야? 💰' },
@@ -20,7 +20,7 @@ const DAILY_QUESTIONS = [
 ];
 
 function getTodayQuestion() {
-  var dateNum = parseInt(TODAY.replace(/-/g, ''));
+  var dateNum = parseInt(getToday().replace(/-/g, ''));
   return DAILY_QUESTIONS[dateNum % DAILY_QUESTIONS.length];
 }
 
@@ -55,7 +55,7 @@ export default function HomePage() {
 
   var getUrgencyColor = function(todo) {
     if (todo.isDone) return '#e0e0e0';
-    if (todo.dueDate && todo.dueDate < TODAY) return '#e53e3e';
+    if (todo.dueDate && todo.dueDate < getToday()) return '#e53e3e';
     var days = getDaysElapsed(todo.createdAt);
     if (todo.dueDate) {
       var dueDate = new Date(todo.dueDate);
@@ -97,7 +97,9 @@ export default function HomePage() {
   var loadHomeData = useCallback(async function() {
     if (!user || !couple) return;
     try {
-      var qRef = doc(db, 'couples', couple.id, 'daily_answers', TODAY);
+      var today = getToday();
+      var thisMonth = getThisMonth();
+      var qRef = doc(db, 'couples', couple.id, 'daily_answers', today);
       var qSnap = await getDoc(qRef);
       if (qSnap.exists()) {
         var qData = qSnap.data();
@@ -109,13 +111,13 @@ export default function HomePage() {
           setTodayQuestion({ question: qData.question, category: qData.category || '오늘의 질문' });
         }
       }
-      var rRef = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + user.uid);
+      var rRef = doc(db, 'couples', couple.id, 'daily', today + '_' + user.uid);
       var rSnap = await getDoc(rRef);
       if (rSnap.exists()) setTodayRecord(rSnap.data());
-      var hRef = doc(db, 'couples', couple.id, 'health', TODAY + '_' + user.uid);
+      var hRef = doc(db, 'couples', couple.id, 'health', today + '_' + user.uid);
       var hSnap = await getDoc(hRef);
       if (hSnap.exists()) setTodayHealth(hSnap.data());
-      var bRef = doc(db, 'couples', couple.id, 'budget', THIS_MONTH);
+      var bRef = doc(db, 'couples', couple.id, 'budget', thisMonth);
       var bSnap = await getDoc(bRef);
       if (bSnap.exists()) setBudgetSummary(bSnap.data());
     } catch (e) { console.error(e); }
@@ -134,7 +136,7 @@ export default function HomePage() {
     if (!couple) return;
     var loadQuestion = async function() {
       try {
-        var ref = doc(db, 'couples', couple.id, 'daily_answers', TODAY);
+        var ref = doc(db, 'couples', couple.id, 'daily_answers', getToday());
         var snap = await getDoc(ref);
         if (snap.exists() && snap.data().question) return;
         var res = await fetch('/api/question');
@@ -156,7 +158,7 @@ export default function HomePage() {
   var handleSaveAnswer = async function() {
     if (!myAnswer.trim() || !couple || !user) return;
     try {
-      var ref = doc(db, 'couples', couple.id, 'daily_answers', TODAY);
+      var ref = doc(db, 'couples', couple.id, 'daily_answers', getToday());
       var snap = await getDoc(ref);
       var existing = snap.exists() ? snap.data() : {};
       var answers = Object.assign({}, existing.answers || {});
@@ -249,7 +251,7 @@ export default function HomePage() {
       <div style={styles.questionCard}>
         <div style={styles.questionHeader}>
           <span style={styles.categoryBadge}>{todayQuestion.category}</span>
-          <span style={styles.questionDate}>{TODAY}</span>
+          <span style={styles.questionDate}>{getToday()}</span>
         </div>
         <p style={styles.questionText}>{todayQuestion.question}</p>
         {answerSaved && !showAnswerInput ? (
@@ -408,7 +410,7 @@ export default function HomePage() {
       {/* 가계부 요약 */}
       {budget ? (
         <div style={styles.card}>
-          <p style={styles.cardLabel}>💰 {THIS_MONTH} 가계부</p>
+          <p style={styles.cardLabel}>💰 {getThisMonth()} 가계부</p>
           <div style={styles.budgetRow}>
             <span style={styles.budgetLabel}>가용현금</span>
             <span style={Object.assign({}, styles.budgetAmount, { color: budget.available >= 0 ? '#2ecc71' : '#e53e3e' })}>

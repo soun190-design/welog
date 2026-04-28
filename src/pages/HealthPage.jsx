@@ -4,8 +4,8 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const TODAY = new Date().toISOString().split('T')[0];
-const THIS_MONTH = new Date().toISOString().substring(0, 7);
+function getToday() { return new Date().toISOString().split('T')[0]; }
+function getThisMonth() { return new Date().toISOString().substring(0, 7); }
 
 const CONDITION_EMOJIS = ['😴', '😔', '😐', '🙂', '😊', '💪'];
 const CONDITION_LABELS = ['매우피곤', '피곤', '보통', '괜찮음', '좋음', '최고'];
@@ -30,7 +30,7 @@ export default function HealthPage() {
   var loadMyRecord = useCallback(async function() {
     if (!user || !couple) return;
     try {
-      var ref = doc(db, 'couples', couple.id, 'health', TODAY + '_' + user.uid);
+      var ref = doc(db, 'couples', couple.id, 'health', getToday() + '_' + user.uid);
       var snap = await getDoc(ref);
       if (snap.exists()) {
         var data = snap.data();
@@ -44,7 +44,7 @@ export default function HealthPage() {
   var loadPartnerRecord = useCallback(async function() {
     if (!partnerUid || !couple) return;
     try {
-      var ref = doc(db, 'couples', couple.id, 'health', TODAY + '_' + partnerUid);
+      var ref = doc(db, 'couples', couple.id, 'health', getToday() + '_' + partnerUid);
       var snap = await getDoc(ref);
       if (snap.exists()) setPartnerRecord(snap.data());
     } catch (e) { console.error(e); }
@@ -59,7 +59,7 @@ export default function HealthPage() {
       snap.docs.forEach(function(d) {
         var id = d.id;
         var parts = id.split('_');
-        if (parts.length === 2 && id.startsWith(THIS_MONTH)) {
+        if (parts.length === 2 && id.startsWith(getThisMonth())) {
           var date = parts[0];
           var uid = parts[1];
           if (!dots[date]) dots[date] = {};
@@ -80,7 +80,7 @@ export default function HealthPage() {
     if (!user || !couple) return;
     setSaving(true);
     try {
-      var ref = doc(db, 'couples', couple.id, 'health', TODAY + '_' + user.uid);
+      var ref = doc(db, 'couples', couple.id, 'health', getToday() + '_' + user.uid);
       var snap = await getDoc(ref);
       var existing = snap.exists() ? snap.data() : {};
       await setDoc(ref, Object.assign({}, existing, updates, {
@@ -104,7 +104,7 @@ export default function HealthPage() {
     var days = [];
     var daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     for (var i = 1; i <= daysInMonth; i++) {
-      var dateStr = THIS_MONTH + '-' + String(i).padStart(2, '0');
+      var dateStr = getThisMonth() + '-' + String(i).padStart(2, '0');
       days.push(dateStr);
     }
     return days;
@@ -298,7 +298,7 @@ export default function HealthPage() {
                 var dayData = monthDots[dateStr] || {};
                 var myDone = dayData[user && user.uid];
                 var partnerDone = partnerUid && dayData[partnerUid];
-                var isToday = dateStr === TODAY;
+                var isToday = dateStr === getToday();
                 return (
                   <div key={dateStr} style={Object.assign({}, styles.dotCell, isToday ? styles.dotCellToday : {})}>
                     <span style={styles.dotDay}>{dayNum}</span>

@@ -310,70 +310,74 @@ export default function ContentPage() {
 
           return (
             <div key={content.id} style={styles.card}>
-              {/* 썸네일 상단 풀 와이드 */}
-              <div style={styles.cardThumbWrap}>
-                {content.thumbnail ? (
-                  <img src={content.thumbnail} alt={content.title} style={styles.cardThumbFull} />
-                ) : (
-                  <div style={styles.cardNoThumbFull}>{content.type === 'movie' ? '🎬' : '📖'}</div>
-                )}
-                <span style={content.type === 'movie' ? styles.typeBadgeMovie : styles.typeBadgeBook}>
-                  {content.type === 'movie' ? 'MOVIE' : 'BOOK'}
-                </span>
-              </div>
-
-              {/* 하단 정보 */}
-              <div style={styles.cardBody}>
-                <p style={styles.cardTitle}>{content.title}</p>
-                <p style={styles.cardSub}>{content.director}{content.year ? ' · ' + content.year : ''}</p>
-                <div style={styles.statusBtnRow}>
-                  {content.status !== 'ongoing' ? (
-                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
-                      {content.status === 'wish' ? '▶️ 시작' : '↩️ 진행중으로'}
-                    </button>
-                  ) : null}
-                  {content.status !== 'done' ? (
-                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>
-                      ✅ 완료
-                    </button>
-                  ) : null}
-                  {content.status !== 'wish' ? (
-                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'wish'); }; })(content.id)}>
-                      🎯 위시로
-                    </button>
-                  ) : null}
+              <div style={styles.cardInner}>
+                {/* 사이드 썸네일 */}
+                <div style={styles.cardThumbWrap}>
+                  {content.thumbnail ? (
+                    <img src={content.thumbnail} alt={content.title} style={styles.cardThumb} />
+                  ) : (
+                    <div style={styles.cardNoThumb}>{content.type === 'movie' ? '🎬' : '📖'}</div>
+                  )}
                 </div>
-                {content.status === 'done' ? (
-                  <div style={styles.ratingArea}>
-                    <div style={styles.ratingRow}>
-                      <span style={styles.ratingLabel}>나</span>
-                      {myReview ? (
-                        <span style={styles.ratingValue}>★ {myReview.rating}</span>
-                      ) : (
-                        <button
-                          style={styles.writeBtn}
-                          onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
-                        >
-                          평가하기
-                        </button>
-                      )}
-                    </div>
-                    <div style={styles.ratingRow}>
-                      <span style={styles.ratingLabel}>파트너</span>
-                      {bothDone ? (
-                        <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
-                      ) : (
-                        <span style={styles.blindText}>작성 전</span>
-                      )}
-                    </div>
-                    {(bothDone && myReview && myReview.comment) ? (
-                      <p style={styles.commentText}>"{myReview.comment}"</p>
+
+                {/* 정보 */}
+                <div style={styles.cardBody}>
+                  <div style={styles.cardTitleRow}>
+                    <p style={styles.cardTitle}>{content.title}</p>
+                    <span style={content.type === 'movie' ? styles.typeBadgeMovie : styles.typeBadgeBook}>
+                      {content.type === 'movie' ? 'MOVIE' : 'BOOK'}
+                    </span>
+                  </div>
+                  <p style={styles.cardSub}>{content.director}{content.year ? ' · ' + content.year : ''}</p>
+                  <div style={styles.statusBtnRow}>
+                    {content.status !== 'ongoing' ? (
+                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
+                        {content.status === 'wish' ? '▶️ 시작' : '↩️ 진행중으로'}
+                      </button>
                     ) : null}
-                    {(bothDone && partnerReview && partnerReview.comment) ? (
-                      <p style={styles.commentText}>💌 "{partnerReview.comment}"</p>
+                    {content.status !== 'done' ? (
+                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>
+                        ✅ 완료
+                      </button>
+                    ) : null}
+                    {content.status !== 'wish' ? (
+                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'wish'); }; })(content.id)}>
+                        🎯 위시로
+                      </button>
                     ) : null}
                   </div>
-                ) : null}
+                  {content.status === 'done' ? (
+                    <div style={styles.ratingArea}>
+                      <div style={styles.ratingRow}>
+                        <span style={styles.ratingLabel}>나</span>
+                        {myReview ? (
+                          <span style={styles.ratingValue}>★ {myReview.rating}</span>
+                        ) : (
+                          <button
+                            style={styles.writeBtn}
+                            onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
+                          >
+                            평가하기
+                          </button>
+                        )}
+                      </div>
+                      <div style={styles.ratingRow}>
+                        <span style={styles.ratingLabel}>파트너</span>
+                        {bothDone ? (
+                          <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
+                        ) : (
+                          <span style={styles.blindText}>작성 전</span>
+                        )}
+                      </div>
+                      {(bothDone && myReview && myReview.comment) ? (
+                        <p style={styles.commentText}>"{myReview.comment}"</p>
+                      ) : null}
+                      {(bothDone && partnerReview && partnerReview.comment) ? (
+                        <p style={styles.commentText}>💌 "{partnerReview.comment}"</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
 
               {showReview === content.id ? (
@@ -446,27 +450,27 @@ const styles = {
     background: '#FDFAF7', borderRadius: 20, marginBottom: 14,
     boxShadow: '0 2px 10px rgba(180,150,130,0.12)', overflow: 'hidden',
   },
-  cardThumbWrap: { position: 'relative', width: '100%', height: 180, overflow: 'hidden' },
-  cardThumbFull: { width: '100%', height: '100%', objectFit: 'cover' },
-  cardNoThumbFull: {
-    width: '100%', height: '100%', background: '#EDE8E3',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48,
+  cardInner: { display: 'flex', alignItems: 'flex-start', padding: '14px 16px', gap: 12 },
+  cardThumbWrap: { flexShrink: 0 },
+  cardThumb: { width: 60, height: 90, objectFit: 'cover', borderRadius: 8 },
+  cardNoThumb: {
+    width: 60, height: 90, background: '#EDE8E3', borderRadius: 8,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
   },
   typeBadgeMovie: {
-    position: 'absolute', top: 10, right: 10,
     background: '#FF6B6B', color: 'white',
     fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-    letterSpacing: 0.5,
+    letterSpacing: 0.5, flexShrink: 0,
   },
   typeBadgeBook: {
-    position: 'absolute', top: 10, right: 10,
     background: '#5A8A6A', color: 'white',
     fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-    letterSpacing: 0.5,
+    letterSpacing: 0.5, flexShrink: 0,
   },
-  cardBody: { padding: '14px 16px 16px' },
-  cardTitle: { fontSize: 16, fontWeight: 700, margin: '0 0 4px', lineHeight: 1.4, color: '#2D2D2D' },
-  cardSub: { fontSize: 12, color: '#9E9083', margin: '0 0 10px' },
+  cardBody: { flex: 1, minWidth: 0 },
+  cardTitleRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
+  cardTitle: { fontSize: 15, fontWeight: 700, margin: 0, lineHeight: 1.4, color: '#2D2D2D', flex: 1 },
+  cardSub: { fontSize: 12, color: '#9E9083', margin: '0 0 8px' },
   statusBtnRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 },
   smallBtn: {
     padding: '4px 10px', border: '1px solid #DDD5CE',
