@@ -119,7 +119,7 @@ export default function SettingsPage({ onNotificationRead }) {
         <div>
           <div style={styles.card}>
             <div style={styles.profile}>
-              <img src={user && user.photoURL || 'https://via.placeholder.com/48'} alt="프로필" style={styles.avatar} />
+              <img src={(user && user.photoURL) || 'https://via.placeholder.com/48'} alt="프로필" style={styles.avatar} />
               <div>
                 <p style={styles.name}>{user && user.displayName}</p>
                 <p style={styles.email}>{user && user.email}</p>
