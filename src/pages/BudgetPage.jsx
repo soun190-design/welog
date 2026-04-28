@@ -15,12 +15,15 @@ function getYearMonth(offset) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 }
 
+var THIS_MONTH = getYearMonth(0);
+var LAST_MONTH = getYearMonth(-1);
+
 export default function BudgetPage() {
   const { user } = useAuth();
   const { couple } = useCouple();
 
-  var thisMonth = getYearMonth(0);
-  var lastMonth = getYearMonth(-1);
+  var thisMonth = THIS_MONTH;
+  var lastMonth = LAST_MONTH;
 
   const [tab, setTab] = useState('summary');
     const [lastMonthFixed, setLastMonthFixed] = useState([]);
