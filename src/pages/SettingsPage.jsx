@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { signOutUser } from '../firebase/auth';
-import { doc, updateDoc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 export default function SettingsPage() {
-  const { user, userDoc, refreshUserDoc } = useAuth();
+  const { user, refreshUserDoc } = useAuth();
   const { couple, refreshCouple } = useCouple();
   const [loading, setLoading] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
