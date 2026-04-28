@@ -19,18 +19,17 @@ function NewsSection({ sectionKey, newsOpinions, setNewsOpinions, onSaveOpinion 
 const loadNews = async () => {
     setLoading(true);
     try {
-      const res = await fetch(
-        '/api/news'
+      const res = await fetch('/api/news');
       );
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
         setLoaded(true);
       } else {
-        alert('뉴스 오류: ' + JSON.stringify(data));
+        setLoaded(false);
       }
     } catch (e) {
-      alert('fetch 에러: ' + e.message);
+      setLoaded(false);
     } finally {
       setLoading(false);
     }
