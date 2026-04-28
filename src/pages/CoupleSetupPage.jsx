@@ -82,4 +82,97 @@ export default function CoupleSetupPage() {
             <input
               style={styles.input}
               value={inputCode}
-              onChange={e => setInp
+              onChange={e => setInputCode(e.target.value.toUpperCase())}
+              placeholder="ABC123"
+              maxLength={6}
+            />
+            <button style={styles.primaryBtn} onClick={handleJoin} disabled={loading}>
+              {loading ? '연결 중...' : '연결하기'}
+            </button>
+            <button style={styles.backBtn} onClick={() => setMode(null)}>← 뒤로</button>
+          </div>
+        )}
+
+        {error && <p style={styles.error}>{error}</p>}
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+  },
+  card: {
+    background: 'white',
+    borderRadius: 20,
+    padding: '48px 40px',
+    textAlign: 'center',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
+    maxWidth: 360,
+    width: '100%',
+  },
+  title: { fontSize: 24, fontWeight: 700, marginBottom: 8 },
+  sub: { color: '#888', marginBottom: 32, fontSize: 15 },
+  hint: { color: '#666', fontSize: 14, marginBottom: 16 },
+  btnGroup: { display: 'flex', flexDirection: 'column', gap: 12 },
+  primaryBtn: {
+    width: '100%',
+    padding: '14px',
+    background: '#ff7043',
+    color: 'white',
+    border: 'none',
+    borderRadius: 12,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: 'pointer',
+    marginBottom: 8,
+  },
+  secondaryBtn: {
+    width: '100%',
+    padding: '14px',
+    background: 'white',
+    color: '#ff7043',
+    border: '2px solid #ff7043',
+    borderRadius: 12,
+    fontSize: 15,
+    fontWeight: 600,
+    cursor: 'pointer',
+  },
+  backBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#aaa',
+    cursor: 'pointer',
+    marginTop: 12,
+    fontSize: 14,
+  },
+  codeBox: {
+    fontSize: 36,
+    fontWeight: 800,
+    letterSpacing: 8,
+    color: '#ff7043',
+    background: '#fff3f0',
+    borderRadius: 12,
+    padding: '16px 24px',
+    margin: '16px 0',
+  },
+  waiting: { color: '#aaa', fontSize: 13 },
+  input: {
+    width: '100%',
+    padding: '14px',
+    fontSize: 24,
+    fontWeight: 700,
+    textAlign: 'center',
+    letterSpacing: 6,
+    border: '2px solid #e0e0e0',
+    borderRadius: 12,
+    marginBottom: 12,
+    boxSizing: 'border-box',
+  },
+  error: { color: '#e53e3e', marginTop: 16, fontSize: 14 },
+};
