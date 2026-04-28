@@ -7,6 +7,7 @@ import RecordPage from './pages/RecordPage';
 import HealthPage from './pages/HealthPage';
 import BudgetPage from './pages/BudgetPage';
 import ContentPage from './pages/ContentPage';
+import SettingsPage from './pages/SettingsPage';
 import { useState } from 'react';
 
 function AppRouter() {
@@ -19,21 +20,23 @@ function AppRouter() {
   if (!userDoc?.coupleId || !isConnected) return <CoupleSetupPage />;
 
   const tabs = [
-    { id: 'home',    label: '홈',    icon: '🏠' },
-    { id: 'record',  label: '기록',  icon: '📓' },
-    { id: 'health',  label: '건강',  icon: '🏃' },
-    { id: 'budget',  label: '가계부', icon: '💰' },
-    { id: 'content', label: '컨텐츠', icon: '📚' },
+    { id: 'home',     label: '홈',    icon: '🏠' },
+    { id: 'record',   label: '기록',  icon: '📓' },
+    { id: 'health',   label: '건강',  icon: '🏃' },
+    { id: 'budget',   label: '가계부', icon: '💰' },
+    { id: 'content',  label: '컨텐츠', icon: '📚' },
+    { id: 'settings', label: '설정',  icon: '⚙️' },
   ];
 
   const renderPage = () => {
     switch (activeTab) {
-      case 'home':    return <HomePage />;
-      case 'record':  return <RecordPage />;
-      case 'health':  return <HealthPage />;
-      case 'budget':  return <BudgetPage />;
-      case 'content': return <ContentPage />;
-      default:        return <HomePage />;
+      case 'home':     return <HomePage />;
+      case 'record':   return <RecordPage />;
+      case 'health':   return <HealthPage />;
+      case 'budget':   return <BudgetPage />;
+      case 'content':  return <ContentPage />;
+      case 'settings': return <SettingsPage />;
+      default:         return <HomePage />;
     }
   };
 
@@ -53,7 +56,12 @@ function AppRouter() {
             onClick={() => setActiveTab(tab.id)}
           >
             <span style={styles.tabIcon}>{tab.icon}</span>
-            <span style={styles.tabLabel}>{tab.label}</span>
+            <span style={{
+              ...styles.tabLabel,
+              ...(activeTab === tab.id ? styles.tabLabelActive : {})
+            }}>
+              {tab.label}
+            </span>
           </button>
         ))}
       </nav>
@@ -116,15 +124,18 @@ const styles = {
     gap: 2,
   },
   tabBtnActive: {
-    color: '#ff7043',
+    borderTop: '2px solid #ff7043',
   },
   tabIcon: {
-    fontSize: 20,
+    fontSize: 18,
   },
   tabLabel: {
     fontSize: 10,
     fontWeight: 600,
     color: '#aaa',
+  },
+  tabLabelActive: {
+    color: '#ff7043',
   },
 };
 
