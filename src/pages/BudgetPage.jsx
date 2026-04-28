@@ -57,7 +57,6 @@ export default function BudgetPage() {
       var ref = doc(db, 'couples', couple.id, 'budget', thisMonth);
       var snap = await getDoc(ref);
       if (snap.exists()) {
-if (snap.exists()) {
   var data = snap.data();
   var income = data.income || {};
 
