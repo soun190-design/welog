@@ -2,22 +2,61 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CoupleProvider, useCouple } from './contexts/CoupleContext';
 import LoginPage from './pages/LoginPage';
 import CoupleSetupPage from './pages/CoupleSetupPage';
+import HomePage from './pages/HomePage';
+import RecordPage from './pages/RecordPage';
+import HealthPage from './pages/HealthPage';
+import BudgetPage from './pages/BudgetPage';
+import ContentPage from './pages/ContentPage';
+import { useState } from 'react';
 
 function AppRouter() {
   const { user, userDoc, loading: authLoading } = useAuth();
   const { isConnected, loading: coupleLoading } = useCouple();
+  const [activeTab, setActiveTab] = useState('home');
 
-  if (authLoading || coupleLoading) {
-    return <LoadingScreen />;
-  }
-
+  if (authLoading || coupleLoading) return <LoadingScreen />;
   if (!user) return <LoginPage />;
   if (!userDoc?.coupleId || !isConnected) return <CoupleSetupPage />;
 
+  const tabs = [
+    { id: 'home',    label: '홈',    icon: '🏠' },
+    { id: 'record',  label: '기록',  icon: '📓' },
+    { id: 'health',  label: '건강',  icon: '🏃' },
+    { id: 'budget',  label: '가계부', icon: '💰' },
+    { id: 'content', label: '컨텐츠', icon: '📚' },
+  ];
+
+  const renderPage = () => {
+    switch (activeTab) {
+      case 'home':    return <HomePage />;
+      case 'record':  return <RecordPage />;
+      case 'health':  return <HealthPage />;
+      case 'budget':  return <BudgetPage />;
+      case 'content': return <ContentPage />;
+      default:        return <HomePage />;
+    }
+  };
+
   return (
-    <div style={{ padding: 20, textAlign: 'center' }}>
-      <h1>💑 Welog</h1>
-      <p>커플 연결 완료! 앞으로 기능을 붙여나갈 거야.</p>
+    <div style={styles.container}>
+      <div style={styles.content}>
+        {renderPage()}
+      </div>
+      <nav style={styles.tabBar}>
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            style={{
+              ...styles.tabBtn,
+              ...(activeTab === tab.id ? styles.tabBtnActive : {})
+            }}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            <span style={styles.tabIcon}>{tab.icon}</span>
+            <span style={styles.tabLabel}>{tab.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
@@ -36,6 +75,58 @@ function LoadingScreen() {
     </div>
   );
 }
+
+const styles = {
+  container: {
+    maxWidth: 480,
+    margin: '0 auto',
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column',
+    background: '#FAFAF8',
+  },
+  content: {
+    flex: 1,
+    overflowY: 'auto',
+    paddingBottom: 70,
+  },
+  tabBar: {
+    position: 'fixed',
+    bottom: 0,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    width: '100%',
+    maxWidth: 480,
+    display: 'flex',
+    background: 'white',
+    borderTop: '1px solid #f0f0f0',
+    boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
+    zIndex: 100,
+  },
+  tabBtn: {
+    flex: 1,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '8px 0',
+    border: 'none',
+    background: 'none',
+    cursor: 'pointer',
+    gap: 2,
+  },
+  tabBtnActive: {
+    color: '#ff7043',
+  },
+  tabIcon: {
+    fontSize: 20,
+  },
+  tabLabel: {
+    fontSize: 10,
+    fontWeight: 600,
+    color: '#aaa',
+  },
+};
 
 export default function App() {
   return (
