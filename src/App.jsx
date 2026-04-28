@@ -4,8 +4,7 @@ import LoginPage from './pages/LoginPage';
 import CoupleSetupPage from './pages/CoupleSetupPage';
 import HomePage from './pages/HomePage';
 import RecordPage from './pages/RecordPage';
-import HealthPage from './pages/HealthPage';
-import BudgetPage from './pages/BudgetPage';
+import SharedPage from './pages/SharedPage';
 import ContentPage from './pages/ContentPage';
 import SettingsPage from './pages/SettingsPage';
 import { useState } from 'react';
@@ -22,8 +21,7 @@ function AppRouter() {
   const tabs = [
     { id: 'home',     label: '홈',    icon: '🏠' },
     { id: 'record',   label: '기록',  icon: '📓' },
-    { id: 'health',   label: '건강',  icon: '🏃' },
-    { id: 'budget',   label: '가계부', icon: '💰' },
+    { id: 'shared',   label: '공동관리', icon: '💰' },
     { id: 'content',  label: '컨텐츠', icon: '📚' },
     { id: 'settings', label: '설정',  icon: '⚙️' },
   ];
@@ -32,8 +30,7 @@ function AppRouter() {
     switch (activeTab) {
       case 'home':     return <HomePage />;
       case 'record':   return <RecordPage />;
-      case 'health':   return <HealthPage />;
-      case 'budget':   return <BudgetPage />;
+      case 'shared':   return <SharedPage />;
       case 'content':  return <ContentPage />;
       case 'settings': return <SettingsPage />;
       default:         return <HomePage />;
