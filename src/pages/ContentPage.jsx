@@ -310,64 +310,70 @@ export default function ContentPage() {
 
           return (
             <div key={content.id} style={styles.card}>
-              <div style={styles.cardInner}>
+              {/* 썸네일 상단 풀 와이드 */}
+              <div style={styles.cardThumbWrap}>
                 {content.thumbnail ? (
-                  <img src={content.thumbnail} alt={content.title} style={styles.cardThumb} />
+                  <img src={content.thumbnail} alt={content.title} style={styles.cardThumbFull} />
                 ) : (
-                  <div style={styles.cardNoThumb}>{content.type === 'movie' ? '🎬' : '📖'}</div>
+                  <div style={styles.cardNoThumbFull}>{content.type === 'movie' ? '🎬' : '📖'}</div>
                 )}
-                <div style={styles.cardInfo}>
-                  <p style={styles.cardTitle}>{content.title}</p>
-                  <p style={styles.cardSub}>{content.director}{content.year ? ' · ' + content.year : ''}</p>
-                  <div style={styles.statusBtnRow}>
-                    {content.status !== 'ongoing' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
-                        {content.status === 'wish' ? '▶️ 시작' : '↩️ 진행중으로'}
-                      </button>
-                    ) : null}
-                    {content.status !== 'done' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>
-                        ✅ 완료
-                      </button>
-                    ) : null}
-                    {content.status !== 'wish' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'wish'); }; })(content.id)}>
-                        🎯 위시로
-                      </button>
-                    ) : null}
-                  </div>
-                  {content.status === 'done' ? (
-                    <div style={styles.ratingArea}>
-                      <div style={styles.ratingRow}>
-                        <span style={styles.ratingLabel}>나</span>
-                        {myReview ? (
-                          <span style={styles.ratingValue}>★ {myReview.rating}</span>
-                        ) : (
-                          <button
-                            style={styles.writeBtn}
-                            onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
-                          >
-                            평가하기
-                          </button>
-                        )}
-                      </div>
-                      <div style={styles.ratingRow}>
-                        <span style={styles.ratingLabel}>파트너</span>
-                        {bothDone ? (
-                          <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
-                        ) : (
-                          <span style={styles.blindText}>작성 전</span>
-                        )}
-                      </div>
-                      {(bothDone && myReview && myReview.comment) ? (
-                        <p style={styles.commentText}>"{myReview.comment}"</p>
-                      ) : null}
-                      {(bothDone && partnerReview && partnerReview.comment) ? (
-                        <p style={styles.commentText}>💌 "{partnerReview.comment}"</p>
-                      ) : null}
-                    </div>
+                <span style={content.type === 'movie' ? styles.typeBadgeMovie : styles.typeBadgeBook}>
+                  {content.type === 'movie' ? 'MOVIE' : 'BOOK'}
+                </span>
+              </div>
+
+              {/* 하단 정보 */}
+              <div style={styles.cardBody}>
+                <p style={styles.cardTitle}>{content.title}</p>
+                <p style={styles.cardSub}>{content.director}{content.year ? ' · ' + content.year : ''}</p>
+                <div style={styles.statusBtnRow}>
+                  {content.status !== 'ongoing' ? (
+                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
+                      {content.status === 'wish' ? '▶️ 시작' : '↩️ 진행중으로'}
+                    </button>
+                  ) : null}
+                  {content.status !== 'done' ? (
+                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>
+                      ✅ 완료
+                    </button>
+                  ) : null}
+                  {content.status !== 'wish' ? (
+                    <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'wish'); }; })(content.id)}>
+                      🎯 위시로
+                    </button>
                   ) : null}
                 </div>
+                {content.status === 'done' ? (
+                  <div style={styles.ratingArea}>
+                    <div style={styles.ratingRow}>
+                      <span style={styles.ratingLabel}>나</span>
+                      {myReview ? (
+                        <span style={styles.ratingValue}>★ {myReview.rating}</span>
+                      ) : (
+                        <button
+                          style={styles.writeBtn}
+                          onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
+                        >
+                          평가하기
+                        </button>
+                      )}
+                    </div>
+                    <div style={styles.ratingRow}>
+                      <span style={styles.ratingLabel}>파트너</span>
+                      {bothDone ? (
+                        <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
+                      ) : (
+                        <span style={styles.blindText}>작성 전</span>
+                      )}
+                    </div>
+                    {(bothDone && myReview && myReview.comment) ? (
+                      <p style={styles.commentText}>"{myReview.comment}"</p>
+                    ) : null}
+                    {(bothDone && partnerReview && partnerReview.comment) ? (
+                      <p style={styles.commentText}>💌 "{partnerReview.comment}"</p>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
 
               {showReview === content.id ? (
@@ -407,131 +413,143 @@ const styles = {
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
   headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 700, margin: 0 },
+  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
   addBtn: {
-    padding: '8px 16px', background: '#ff7043', color: 'white',
+    padding: '8px 16px', background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   filterRow: { display: 'flex', gap: 8, marginBottom: 12 },
   filterBtn: {
-    padding: '6px 14px', border: '1px solid #e0e0e0',
-    borderRadius: 20, background: 'white', fontSize: 13, cursor: 'pointer',
+    padding: '6px 14px', border: '1px solid #DDD5CE',
+    borderRadius: 20, background: '#FDFAF7', fontSize: 13, cursor: 'pointer', color: '#5C5049',
   },
   filterActive: {
     padding: '6px 14px', border: 'none', borderRadius: 20,
-    background: '#ff7043', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer',
+    background: '#FF6B6B', color: 'white', fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   statusRow: { display: 'flex', gap: 8, marginBottom: 12 },
   statusBtn: {
-    flex: 1, padding: '10px', border: '1px solid #e0e0e0',
-    borderRadius: 12, background: 'white', fontSize: 13, cursor: 'pointer',
+    flex: 1, padding: '10px', border: '1px solid #DDD5CE',
+    borderRadius: 12, background: '#FDFAF7', fontSize: 13, cursor: 'pointer', color: '#5C5049',
   },
   statusActive: {
     flex: 1, padding: '10px', border: 'none', borderRadius: 12,
-    background: '#fff3f0', color: '#ff7043', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    background: '#FFF0EE', color: '#FF6B6B', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
   subFilterRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   reviewFilterRow: { display: 'flex', gap: 8 },
   sortBtn: {
-    padding: '6px 14px', border: '1px solid #e0e0e0',
-    borderRadius: 20, background: 'white', fontSize: 13, cursor: 'pointer',
+    padding: '6px 14px', border: '1px solid #DDD5CE',
+    borderRadius: 20, background: '#FDFAF7', fontSize: 13, cursor: 'pointer', color: '#5C5049',
   },
   card: {
-    background: 'white', borderRadius: 16, marginBottom: 12,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
+    background: '#FDFAF7', borderRadius: 20, marginBottom: 14,
+    boxShadow: '0 2px 10px rgba(180,150,130,0.12)', overflow: 'hidden',
   },
-  cardInner: { display: 'flex', gap: 12, padding: 16 },
-  cardThumb: { width: 60, height: 90, objectFit: 'cover', borderRadius: 8, flexShrink: 0 },
-  cardNoThumb: {
-    width: 60, height: 90, background: '#f5f5f5', borderRadius: 8,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0,
+  cardThumbWrap: { position: 'relative', width: '100%', height: 180, overflow: 'hidden' },
+  cardThumbFull: { width: '100%', height: '100%', objectFit: 'cover' },
+  cardNoThumbFull: {
+    width: '100%', height: '100%', background: '#EDE8E3',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 48,
   },
-  cardInfo: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: 700, margin: '0 0 4px', lineHeight: 1.4 },
-  cardSub: { fontSize: 12, color: '#aaa', margin: '0 0 8px' },
+  typeBadgeMovie: {
+    position: 'absolute', top: 10, right: 10,
+    background: '#FF6B6B', color: 'white',
+    fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+    letterSpacing: 0.5,
+  },
+  typeBadgeBook: {
+    position: 'absolute', top: 10, right: 10,
+    background: '#5A8A6A', color: 'white',
+    fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
+    letterSpacing: 0.5,
+  },
+  cardBody: { padding: '14px 16px 16px' },
+  cardTitle: { fontSize: 16, fontWeight: 700, margin: '0 0 4px', lineHeight: 1.4, color: '#2D2D2D' },
+  cardSub: { fontSize: 12, color: '#9E9083', margin: '0 0 10px' },
   statusBtnRow: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 },
   smallBtn: {
-    padding: '4px 10px', border: '1px solid #e0e0e0',
-    borderRadius: 20, background: 'white', fontSize: 12, cursor: 'pointer',
+    padding: '4px 10px', border: '1px solid #DDD5CE',
+    borderRadius: 20, background: '#FDFAF7', fontSize: 12, cursor: 'pointer', color: '#5C5049',
   },
   ratingArea: { marginTop: 8 },
   ratingRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 },
-  ratingLabel: { fontSize: 12, color: '#888', width: 40 },
-  ratingValue: { fontSize: 14, fontWeight: 700, color: '#ff7043' },
-  blindText: { fontSize: 12, color: '#ccc' },
+  ratingLabel: { fontSize: 12, color: '#9E9083', width: 40 },
+  ratingValue: { fontSize: 14, fontWeight: 700, color: '#FF6B6B' },
+  blindText: { fontSize: 12, color: '#C4BAB1' },
   writeBtn: {
     padding: '3px 10px', border: 'none', borderRadius: 20,
-    background: '#fff3f0', color: '#ff7043', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    background: '#FFF0EE', color: '#FF6B6B', fontSize: 12, fontWeight: 600, cursor: 'pointer',
   },
-  commentText: { fontSize: 13, color: '#555', fontStyle: 'italic', margin: '4px 0 0' },
-  reviewBox: { padding: '0 16px 16px', borderTop: '1px solid #f0f0f0', marginTop: 4 },
-  reviewLabel: { fontSize: 13, fontWeight: 600, color: '#555', margin: '12px 0 8px' },
+  commentText: { fontSize: 13, color: '#5C5049', fontStyle: 'italic', margin: '4px 0 0' },
+  reviewBox: { padding: '0 16px 16px', borderTop: '1px solid #EDE8E3', marginTop: 4 },
+  reviewLabel: { fontSize: 13, fontWeight: 600, color: '#5C5049', margin: '12px 0 8px' },
   stars: { display: 'flex', gap: 2 },
   starBtn: { background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', padding: 2 },
-  ratingDisplay: { fontSize: 13, color: '#ff7043', fontWeight: 600, margin: '8px 0' },
+  ratingDisplay: { fontSize: 13, color: '#FF6B6B', fontWeight: 600, margin: '8px 0' },
   commentInput: {
-    width: '100%', padding: 12, border: '1px solid #f0f0f0', borderRadius: 12,
-    fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit',
+    width: '100%', padding: 12, border: '1px solid #EDE8E3', borderRadius: 12,
+    fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit', background: '#FDFAF7',
   },
   reviewBtnRow: { display: 'flex', gap: 8 },
   cancelReviewBtn: {
-    flex: 1, padding: 10, background: '#f5f5f5', color: '#888',
+    flex: 1, padding: 10, background: '#EDE8E3', color: '#9E9083',
     border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer',
   },
   saveReviewBtn: {
-    flex: 1, padding: 10, background: '#ff7043', color: 'white',
+    flex: 1, padding: 10, background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   modal: {
     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-    background: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'flex-end',
+    background: 'rgba(45,30,20,0.45)', zIndex: 200, display: 'flex', alignItems: 'flex-end',
   },
   modalCard: {
-    background: 'white', borderRadius: '20px 20px 0 0', padding: 20,
+    background: '#FDFAF7', borderRadius: '20px 20px 0 0', padding: 20,
     width: '100%', maxHeight: '80vh', overflowY: 'auto',
   },
   modalHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 18, fontWeight: 700 },
-  closeBtn: { background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#aaa' },
+  modalTitle: { fontSize: 18, fontWeight: 700, color: '#2D2D2D' },
+  closeBtn: { background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#9E9083' },
   typeRow: { display: 'flex', gap: 8, marginBottom: 12 },
   typeBtn: {
-    flex: 1, padding: 10, border: '1px solid #e0e0e0',
-    borderRadius: 12, background: 'white', fontSize: 14, cursor: 'pointer',
+    flex: 1, padding: 10, border: '1px solid #DDD5CE',
+    borderRadius: 12, background: '#FDFAF7', fontSize: 14, cursor: 'pointer', color: '#5C5049',
   },
   typeActive: {
     flex: 1, padding: 10, border: 'none', borderRadius: 12,
-    background: '#ff7043', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    background: '#FF6B6B', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   searchRow: { display: 'flex', gap: 8, marginBottom: 12 },
   searchInput: {
-    flex: 1, padding: 12, border: '1px solid #e0e0e0',
-    borderRadius: 12, fontSize: 14, outline: 'none', fontFamily: 'inherit',
+    flex: 1, padding: 12, border: '1px solid #DDD5CE',
+    borderRadius: 12, fontSize: 14, outline: 'none', fontFamily: 'inherit', background: '#FDFAF7',
   },
   searchBtn: {
-    padding: '12px 16px', background: '#ff7043', color: 'white',
+    padding: '12px 16px', background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   resultList: { display: 'flex', flexDirection: 'column', gap: 10 },
   resultItem: { display: 'flex', alignItems: 'center', gap: 12 },
   thumbnail: { width: 44, height: 64, objectFit: 'cover', borderRadius: 6, flexShrink: 0 },
   noThumb: {
-    width: 44, height: 64, background: '#f5f5f5', borderRadius: 6,
+    width: 44, height: 64, background: '#EDE8E3', borderRadius: 6,
     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0,
   },
   resultInfo: { flex: 1 },
-  resultTitle: { fontSize: 14, fontWeight: 600, margin: 0, lineHeight: 1.4 },
-  resultSub: { fontSize: 12, color: '#aaa', margin: '2px 0 0' },
+  resultTitle: { fontSize: 14, fontWeight: 600, margin: 0, lineHeight: 1.4, color: '#2D2D2D' },
+  resultSub: { fontSize: 12, color: '#9E9083', margin: '2px 0 0' },
   wishBtn: {
-    padding: '6px 12px', background: '#fff3f0', color: '#ff7043',
+    padding: '6px 12px', background: '#FFF0EE', color: '#FF6B6B',
     border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   emptyCard: {
-    background: 'white', borderRadius: 16, padding: 40,
-    textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 16, padding: 40,
+    textAlign: 'center', boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
-  emptyText: { color: '#aaa', fontSize: 14, marginBottom: 16 },
+  emptyText: { color: '#9E9083', fontSize: 14, marginBottom: 16 },
   emptyAddBtn: {
-    padding: '10px 24px', background: '#ff7043', color: 'white',
+    padding: '10px 24px', background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
 };

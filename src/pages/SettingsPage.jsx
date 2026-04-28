@@ -55,6 +55,14 @@ export default function SettingsPage({ onNotificationRead }) {
     }
   };
 
+  var getDday = function() {
+    if (!couple || !couple.createdAt) return null;
+    var start = couple.createdAt.toDate ? couple.createdAt.toDate() : new Date(couple.createdAt);
+    var now = new Date();
+    var diff = Math.floor((now - start) / (1000 * 60 * 60 * 24)) + 1;
+    return diff;
+  };
+
   var getTypeLabel = function(type) {
     if (type === 'budget') return '💰 가계부';
     if (type === 'schedule') return '📅 일정';
@@ -101,8 +109,19 @@ export default function SettingsPage({ onNotificationRead }) {
                   style={Object.assign({}, styles.notiItem, !noti.isRead ? styles.notiItemUnread : {})}
                   onClick={function() { handleMarkRead(noti.id); }}
                 >
+                  <div style={Object.assign({}, styles.notiIconWrap, {
+                    background: noti.type === 'budget' ? '#FFF0EE' : noti.type === 'schedule' ? '#EEF7F0' : '#F0F0F5',
+                  })}>
+                    <span style={{ fontSize: 18 }}>
+                      {noti.type === 'budget' ? '💰' : noti.type === 'schedule' ? '📅' : '🔔'}
+                    </span>
+                  </div>
                   <div style={styles.notiLeft}>
-                    <span style={styles.notiType}>{getTypeLabel(noti.type)}</span>
+                    <span style={Object.assign({}, styles.notiType, {
+                      color: noti.type === 'budget' ? '#FF6B6B' : noti.type === 'schedule' ? '#5A8A6A' : '#9E9083',
+                    })}>
+                      {noti.type === 'budget' ? '가계부' : noti.type === 'schedule' ? '일정' : '알림'}
+                    </span>
                     <p style={styles.notiMessage}>{noti.message}</p>
                     <p style={styles.notiTime}>{formatTime(noti.createdAt)}</p>
                   </div>
@@ -130,7 +149,12 @@ export default function SettingsPage({ onNotificationRead }) {
           <div style={styles.card}>
             <p style={styles.sectionLabel}>커플 연결</p>
             {couple && couple.members && couple.members.length === 2 ? (
-              <p style={styles.connectedText}>💑 파트너와 연결됨</p>
+              <div style={styles.connectedRow}>
+                <p style={styles.connectedText}>💑 파트너와 연결됨</p>
+                {getDday() !== null ? (
+                  <span style={styles.ddayBadge}>D+{getDday()}</span>
+                ) : null}
+              </div>
             ) : (
               <p style={styles.connectedText}>⏳ 파트너 연결 대기중</p>
             )}
@@ -165,58 +189,66 @@ export default function SettingsPage({ onNotificationRead }) {
 const styles = {
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
-  title: { fontSize: 22, fontWeight: 700, margin: 0 },
+  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
   tabRow: { display: 'flex', gap: 8, marginBottom: 16 },
   tabBtn: {
-    flex: 1, padding: '10px', border: '1px solid #e0e0e0',
-    borderRadius: 12, background: 'white', fontSize: 13, cursor: 'pointer',
+    flex: 1, padding: '10px', border: '1px solid #DDD5CE',
+    borderRadius: 12, background: '#FDFAF7', fontSize: 13, cursor: 'pointer', color: '#5C5049',
   },
   tabActive: {
     flex: 1, padding: '10px', border: 'none', borderRadius: 12,
-    background: '#ff7043', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    background: '#FF6B6B', color: 'white', fontSize: 13, fontWeight: 700, cursor: 'pointer',
   },
   notiHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  notiCount: { fontSize: 13, color: '#888', margin: 0 },
+  notiCount: { fontSize: 13, color: '#9E9083', margin: 0 },
   readAllBtn: {
-    padding: '4px 12px', background: '#f5f5f5', color: '#888',
+    padding: '4px 12px', background: '#EDE8E3', color: '#9E9083',
     border: 'none', borderRadius: 20, fontSize: 12, cursor: 'pointer',
   },
   notiItem: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: 'white', borderRadius: 12, padding: 14, marginBottom: 8,
-    boxShadow: '0 1px 4px rgba(0,0,0,0.06)', cursor: 'pointer',
+    background: '#FDFAF7', borderRadius: 12, padding: 14, marginBottom: 8,
+    boxShadow: '0 1px 4px rgba(180,150,130,0.10)', cursor: 'pointer',
   },
-  notiItemUnread: { background: '#fff3f0', borderLeft: '3px solid #ff7043' },
+  notiItemUnread: { background: '#FFF0EE', borderLeft: '3px solid #FF6B6B' },
   notiLeft: { flex: 1 },
-  notiType: { fontSize: 11, color: '#aaa', fontWeight: 600 },
-  notiMessage: { fontSize: 14, color: '#333', margin: '4px 0 2px', fontWeight: 500 },
-  notiTime: { fontSize: 11, color: '#bbb', margin: 0 },
-  unreadDot: { width: 8, height: 8, borderRadius: 4, background: '#ff7043', flexShrink: 0 },
+  notiType: { fontSize: 11, color: '#9E9083', fontWeight: 600 },
+  notiMessage: { fontSize: 14, color: '#2D2D2D', margin: '4px 0 2px', fontWeight: 500 },
+  notiTime: { fontSize: 11, color: '#B0A69D', margin: 0 },
+  unreadDot: { width: 8, height: 8, borderRadius: 4, background: '#FF6B6B', flexShrink: 0 },
   emptyCard: {
-    background: 'white', borderRadius: 16, padding: 40,
-    textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 16, padding: 40,
+    textAlign: 'center', boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
-  emptyText: { color: '#aaa', fontSize: 14 },
+  emptyText: { color: '#9E9083', fontSize: 14 },
   card: {
-    background: 'white', borderRadius: 16, padding: 20,
-    marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 16, padding: 20,
+    marginBottom: 12, boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
   profile: { display: 'flex', alignItems: 'center', gap: 16 },
   avatar: { width: 48, height: 48, borderRadius: 24 },
-  name: { fontWeight: 700, fontSize: 16, margin: 0 },
-  email: { color: '#aaa', fontSize: 13, margin: '4px 0 0' },
-  sectionLabel: { fontSize: 13, color: '#aaa', marginBottom: 8, fontWeight: 600 },
-  connectedText: { fontSize: 15, fontWeight: 600, margin: '0 0 4px' },
-  codeText: { fontSize: 13, color: '#aaa', marginBottom: 16 },
+  name: { fontWeight: 700, fontSize: 16, margin: 0, color: '#2D2D2D' },
+  email: { color: '#9E9083', fontSize: 13, margin: '4px 0 0' },
+  sectionLabel: { fontSize: 13, color: '#9E9083', marginBottom: 8, fontWeight: 600 },
+  connectedRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 },
+  connectedText: { fontSize: 15, fontWeight: 600, margin: 0, color: '#2D2D2D' },
+  ddayBadge: {
+    background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
+    color: 'white', fontSize: 12, fontWeight: 800,
+    padding: '3px 10px', borderRadius: 20,
+    boxShadow: '0 2px 8px rgba(255,107,107,0.30)',
+    letterSpacing: 0.5,
+  },
+  codeText: { fontSize: 13, color: '#9E9083', marginBottom: 16 },
   disconnectBtn: {
     width: '100%', padding: 12, background: '#fff0f0', color: '#e53e3e',
     border: '1px solid #ffcccc', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   confirmBox: { background: '#fff8f8', borderRadius: 12, padding: 16 },
-  confirmText: { fontSize: 14, color: '#555', lineHeight: 1.6, marginBottom: 16, whiteSpace: 'pre-line' },
+  confirmText: { fontSize: 14, color: '#5C5049', lineHeight: 1.6, marginBottom: 16, whiteSpace: 'pre-line' },
   btnRow: { display: 'flex', gap: 8 },
   cancelBtn: {
-    flex: 1, padding: 12, background: '#f5f5f5', color: '#888',
+    flex: 1, padding: 12, background: '#EDE8E3', color: '#9E9083',
     border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   confirmBtn: {
@@ -224,7 +256,7 @@ const styles = {
     border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   signOutBtn: {
-    width: '100%', padding: 12, background: '#f5f5f5', color: '#888',
+    width: '100%', padding: 12, background: '#EDE8E3', color: '#9E9083',
     border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: 'pointer',
   },
   error: { color: '#e53e3e', fontSize: 13, marginTop: 8 },

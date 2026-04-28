@@ -248,9 +248,7 @@ export default function HomePage() {
       {/* 오늘의 질문 */}
       <div style={styles.questionCard}>
         <div style={styles.questionHeader}>
-          <span style={Object.assign({}, styles.categoryBadge, { background: categoryColors[todayQuestion.category] || '#ff7043' })}>
-            {todayQuestion.category}
-          </span>
+          <span style={styles.categoryBadge}>{todayQuestion.category}</span>
           <span style={styles.questionDate}>{TODAY}</span>
         </div>
         <p style={styles.questionText}>{todayQuestion.question}</p>
@@ -261,7 +259,7 @@ export default function HomePage() {
               <p style={styles.answerText}>{myAnswer}</p>
             </div>
             {partnerAnswer ? (
-              <div style={Object.assign({}, styles.answerBox, { background: '#f0f7ff' })}>
+              <div style={styles.answerBoxPartner}>
                 <p style={styles.answerLabel}>파트너 답변 💌</p>
                 <p style={styles.answerText}>{partnerAnswer}</p>
               </div>
@@ -279,8 +277,8 @@ export default function HomePage() {
               onChange={function(e) { setMyAnswer(e.target.value); }}
             />
             <div style={styles.btnRow}>
-              <button style={styles.cancelBtn} onClick={function() { setShowAnswerInput(false); }}>취소</button>
-              <button style={styles.saveBtn} onClick={handleSaveAnswer}>저장하기</button>
+              <button style={styles.questionCancelBtn} onClick={function() { setShowAnswerInput(false); }}>취소</button>
+              <button style={styles.questionSaveBtn} onClick={handleSaveAnswer}>저장하기</button>
             </div>
           </div>
         ) : (
@@ -439,65 +437,99 @@ export default function HomePage() {
 }
 
 const styles = {
-  container: { padding: 20, paddingBottom: 40 },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 0 16px' },
-  greeting: { fontSize: 13, color: '#aaa', margin: 0 },
-  name: { fontSize: 22, fontWeight: 700, margin: '4px 0 0' },
-  avatar: { width: 44, height: 44, borderRadius: 22 },
+  container: { padding: 24, paddingBottom: 40 },
+  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0 20px' },
+  greeting: { fontSize: 13, color: '#9E9083', margin: 0 },
+  name: { fontSize: 24, fontWeight: 800, margin: '4px 0 0', color: '#2D2D2D', letterSpacing: -0.5 },
+  avatar: { width: 44, height: 44, borderRadius: 22, border: '2px solid #EDE8E3' },
+
   questionCard: {
-    background: 'white', borderRadius: 20, padding: 20,
-    marginBottom: 12, boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+    background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
+    borderRadius: 20, padding: 20, marginBottom: 16,
+    boxShadow: '0 6px 24px rgba(255,107,107,0.35)',
   },
   questionHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  categoryBadge: { color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20 },
-  questionDate: { fontSize: 12, color: '#bbb' },
-  questionText: { fontSize: 16, fontWeight: 600, color: '#333', lineHeight: 1.5, margin: '0 0 16px' },
+  categoryBadge: {
+    background: 'rgba(255,255,255,0.90)', color: '#FF6B6B',
+    fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20,
+  },
+  questionDate: { fontSize: 12, color: 'rgba(255,255,255,0.75)' },
+  questionText: { fontSize: 16, fontWeight: 600, color: 'white', lineHeight: 1.6, margin: '0 0 16px' },
   answerBtn: {
-    width: '100%', padding: 12, background: '#fff3f0', color: '#ff7043',
-    border: '1px dashed #ff7043', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    width: '100%', padding: 13,
+    background: 'rgba(255,255,255,0.20)', color: 'white',
+    border: '1.5px solid rgba(255,255,255,0.55)',
+    borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   answerInput: {
-    width: '100%', minHeight: 80, padding: 12, border: '1px solid #f0f0f0',
+    width: '100%', minHeight: 80, padding: 12,
+    border: '1.5px solid rgba(255,255,255,0.45)',
     borderRadius: 12, fontSize: 14, resize: 'none', outline: 'none',
     boxSizing: 'border-box', fontFamily: 'inherit', marginBottom: 8,
+    background: 'rgba(255,255,255,0.15)', color: 'white',
   },
   btnRow: { display: 'flex', gap: 8 },
-  cancelBtn: { flex: 1, padding: 12, background: '#f5f5f5', color: '#888', border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer' },
-  saveBtn: { flex: 1, padding: 12, background: '#ff7043', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer' },
-  answerBox: { background: '#fafaf8', borderRadius: 12, padding: 12, marginBottom: 8 },
-  answerLabel: { fontSize: 11, color: '#aaa', fontWeight: 600, margin: '0 0 4px' },
-  answerText: { fontSize: 14, color: '#333', margin: 0, lineHeight: 1.5 },
-  waitingText: { fontSize: 13, color: '#bbb', textAlign: 'center', padding: '8px 0' },
-  editBtn: { width: '100%', padding: 10, background: 'none', color: '#aaa', border: '1px solid #f0f0f0', borderRadius: 12, fontSize: 13, cursor: 'pointer', marginTop: 4 },
-  card: { background: 'white', borderRadius: 16, padding: 16, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' },
-  cardLabel: { fontSize: 13, fontWeight: 600, color: '#888', margin: '0 0 12px' },
-  statusGrid: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 },
-  statusItem: { display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 4px', background: '#fafaf8', borderRadius: 12, gap: 4 },
-  statusIcon: { fontSize: 20 },
-  statusText: { fontSize: 11, color: '#aaa' },
-  statusBadge: { fontSize: 16 },
+  cancelBtn: { flex: 1, padding: 12, background: '#EDE8E3', color: '#9E9083', border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer' },
+  saveBtn: { flex: 1, padding: 12, background: '#FF6B6B', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer' },
+  questionCancelBtn: {
+    flex: 1, padding: 12, background: 'rgba(255,255,255,0.20)', color: 'white',
+    border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer',
+  },
+  questionSaveBtn: {
+    flex: 1, padding: 12, background: 'rgba(255,255,255,0.92)', color: '#FF6B6B',
+    border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+  },
+  answerBox: { background: 'rgba(255,255,255,0.18)', borderRadius: 12, padding: 12, marginBottom: 8 },
+  answerBoxPartner: { background: 'rgba(255,255,255,0.28)', borderRadius: 12, padding: 12, marginBottom: 8 },
+  answerLabel: { fontSize: 11, color: 'rgba(255,255,255,0.80)', fontWeight: 600, margin: '0 0 4px' },
+  answerText: { fontSize: 14, color: 'white', margin: 0, lineHeight: 1.5 },
+  waitingText: { fontSize: 13, color: 'rgba(255,255,255,0.70)', textAlign: 'center', padding: '8px 0' },
+  editBtn: {
+    width: '100%', padding: 10, background: 'rgba(255,255,255,0.15)',
+    color: 'rgba(255,255,255,0.80)', border: '1px solid rgba(255,255,255,0.35)',
+    borderRadius: 12, fontSize: 13, cursor: 'pointer', marginTop: 4,
+  },
+
+  card: { background: '#FDFAF7', borderRadius: 20, padding: 18, marginBottom: 14, boxShadow: '0 2px 10px rgba(180,150,130,0.10)' },
+  cardLabel: { fontSize: 13, fontWeight: 700, color: '#9E9083', margin: '0 0 14px' },
+
+  statusGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 },
+  statusItem: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    padding: '16px 8px', background: '#F5F0EB', borderRadius: 16, gap: 6,
+  },
+  statusIcon: { fontSize: 26 },
+  statusText: { fontSize: 12, color: '#9E9083', fontWeight: 600 },
+  statusBadge: { fontSize: 18 },
+
   todoHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   todoHeaderBtns: { display: 'flex', gap: 8, alignItems: 'center' },
-  partnerBtn: { padding: '4px 10px', background: '#f5f5f5', color: '#888', border: 'none', borderRadius: 20, fontSize: 12, cursor: 'pointer' },
-  partnerBtnActive: { padding: '4px 10px', background: '#fff3f0', color: '#ff7043', border: 'none', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer' },
-  addTodoBtn: { width: 28, height: 28, background: '#ff7043', color: 'white', border: 'none', borderRadius: 14, fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  todoInputBox: { marginBottom: 12 },
-  input: { width: '100%', padding: 12, border: '1px solid #f0f0f0', borderRadius: 12, fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit' },
-  todoItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid #f5f5f5' },
-  urgencyBar: { width: 4, height: 36, borderRadius: 2, flexShrink: 0 },
+  partnerBtn: { padding: '5px 12px', background: '#EDE8E3', color: '#9E9083', border: 'none', borderRadius: 20, fontSize: 12, cursor: 'pointer' },
+  partnerBtnActive: { padding: '5px 12px', background: '#FFF0EE', color: '#FF6B6B', border: 'none', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer' },
+  addTodoBtn: {
+    width: 30, height: 30, background: '#FF6B6B', color: 'white',
+    border: 'none', borderRadius: 15, fontSize: 18, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 2px 8px rgba(255,107,107,0.35)',
+  },
+  todoInputBox: { marginBottom: 12, background: '#F5F0EB', borderRadius: 14, padding: 12 },
+  input: { width: '100%', padding: 12, border: '1px solid #EDE8E3', borderRadius: 12, fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit', background: '#FDFAF7' },
+  todoItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '11px 0', borderBottom: '1px solid #EDE8E3' },
+  urgencyBar: { width: 4, height: 38, borderRadius: 2, flexShrink: 0 },
   todoContent: { flex: 1 },
-  todoText: { fontSize: 14, color: '#333', margin: 0, lineHeight: 1.4 },
-  todoDone: { textDecoration: 'line-through', color: '#aaa' },
-  todoDue: { fontSize: 11, color: '#aaa', margin: '2px 0 0' },
+  todoText: { fontSize: 14, color: '#2D2D2D', margin: 0, lineHeight: 1.4 },
+  todoDone: { textDecoration: 'line-through', color: '#9E9083' },
+  todoDue: { fontSize: 11, color: '#9E9083', margin: '3px 0 0' },
   todoBtns: { display: 'flex', gap: 4 },
   todoIconBtn: { background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', padding: '2px' },
   doneIcon: { fontSize: 16 },
-  emptyText: { color: '#aaa', fontSize: 14, textAlign: 'center', padding: '16px 0' },
+  emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '16px 0' },
+
   budgetRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  budgetLabel: { fontSize: 14, color: '#666' },
-  budgetAmount: { fontSize: 18, fontWeight: 800 },
-  budgetSub: { fontSize: 14, fontWeight: 600, color: '#333' },
-  progressBar: { height: 8, background: '#f0f0f0', borderRadius: 4, overflow: 'hidden', margin: '8px 0 4px' },
+  budgetLabel: { fontSize: 14, color: '#7A6E67' },
+  budgetAmount: { fontSize: 28, fontWeight: 800, letterSpacing: -0.5 },
+  budgetSub: { fontSize: 14, fontWeight: 600, color: '#2D2D2D' },
+  progressBar: { height: 8, background: '#EDE8E3', borderRadius: 4, overflow: 'hidden', margin: '10px 0 4px' },
   progressFill: { height: '100%', borderRadius: 4 },
-  progressText: { fontSize: 12, color: '#aaa', margin: 0 },
+  progressText: { fontSize: 12, color: '#9E9083', margin: 0 },
 };

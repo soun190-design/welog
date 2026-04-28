@@ -247,38 +247,28 @@ export default function BudgetPage() {
       {/* 요약 */}
       {tab === 'summary' ? (
         <div>
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryRow}>
-              <span style={styles.summaryLabel}>총 수입</span>
-              <span style={styles.summaryValue}>+{formatNum(totals.totalIncome)}원</span>
+          {/* 가용현금 히어로 카드 */}
+          <div style={styles.heroCard}>
+            <p style={styles.heroLabel}>이번달 가용현금</p>
+            <p style={Object.assign({}, styles.heroAmount, { color: totals.available >= 0 ? '#2ecc71' : '#e53e3e' })}>
+              {totals.available >= 0 ? '+' : ''}{formatNum(totals.available)}원
+            </p>
+            <div style={styles.heroStats}>
+              <div style={styles.heroStatItem}>
+                <span style={styles.heroStatLabel}>총 수입</span>
+                <span style={styles.heroStatValue}>+{formatNum(totals.totalIncome)}</span>
+              </div>
+              <div style={styles.heroStatDivider} />
+              <div style={styles.heroStatItem}>
+                <span style={styles.heroStatLabel}>고정비</span>
+                <span style={Object.assign({}, styles.heroStatValue, { color: '#e07070' })}>-{formatNum(totals.fixedTotal)}</span>
+              </div>
+              <div style={styles.heroStatDivider} />
+              <div style={styles.heroStatItem}>
+                <span style={styles.heroStatLabel}>변동지출</span>
+                <span style={Object.assign({}, styles.heroStatValue, { color: '#e07070' })}>-{formatNum(totals.varTotal)}</span>
+              </div>
             </div>
-            <div style={styles.summaryRow}>
-              <span style={styles.summaryLabel}>고정비</span>
-              <span style={styles.summaryMinus}>-{formatNum(totals.fixedTotal)}원</span>
-            </div>
-            <div style={styles.summaryRow}>
-              <span style={styles.summaryLabel}>변동지출</span>
-              <span style={styles.summaryMinus}>-{formatNum(totals.varTotal)}원</span>
-            </div>
-            <div style={styles.divider} />
-            <div style={styles.summaryRow}>
-              <span style={styles.summaryLabelBold}>가용현금</span>
-              <span style={Object.assign({}, styles.summaryValueBold, { color: totals.available >= 0 ? '#2ecc71' : '#e53e3e' })}>
-                {totals.available >= 0 ? '+' : ''}{formatNum(totals.available)}원
-              </span>
-            </div>
-          </div>
-
-          <div style={styles.card}>
-            <p style={styles.cardLabel}>💳 카드 미결제</p>
-            <p style={styles.cardAmount}>{formatNum(totals.cardTotal)}원</p>
-            {cardSettings.map(function(card) {
-              return (
-                <p key={card.id} style={styles.cardInfo}>
-                  {card.name} · 매월 {card.paymentDate}일 결제
-                </p>
-              );
-            })}
           </div>
 
           {totals.goalNum > 0 ? (
@@ -293,6 +283,33 @@ export default function BudgetPage() {
               <p style={styles.progressText}>
                 {formatNum(totals.varTotal)}원 / {formatNum(totals.goalNum)}원 ({totals.goalRate}%)
               </p>
+            </div>
+          ) : null}
+
+          <div style={styles.card}>
+            <p style={styles.cardLabel}>💳 카드 미결제</p>
+            <p style={styles.cardAmount}>{formatNum(totals.cardTotal)}원</p>
+            {cardSettings.map(function(card) {
+              return (
+                <p key={card.id} style={styles.cardInfo}>
+                  {card.name} · 매월 {card.paymentDate}일 결제
+                </p>
+              );
+            })}
+          </div>
+
+          {expenses.length > 0 ? (
+            <div style={styles.card}>
+              <p style={styles.cardLabel}>🧾 최근 지출</p>
+              {expenses.slice(-5).reverse().map(function(e, i) {
+                return (
+                  <div key={i} style={styles.recentItem}>
+                    <span style={styles.recentCategory}>{e.category}</span>
+                    <span style={styles.recentTitle}>{e.title}</span>
+                    <span style={styles.recentAmount}>-{formatNum(e.amount)}원</span>
+                  </div>
+                );
+              })}
             </div>
           ) : null}
 
@@ -550,112 +567,135 @@ export default function BudgetPage() {
 const styles = {
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
-  title: { fontSize: 22, fontWeight: 700, margin: 0 },
-  month: { color: '#aaa', fontSize: 14, margin: '4px 0 0' },
+  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
+  month: { color: '#9E9083', fontSize: 14, margin: '4px 0 0' },
   tabRow: { display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto' },
   tabBtn: {
-    padding: '8px 14px', border: '1px solid #e0e0e0',
-    borderRadius: 20, background: 'white', fontSize: 13,
-    cursor: 'pointer', whiteSpace: 'nowrap',
+    padding: '8px 14px', border: '1px solid #DDD5CE',
+    borderRadius: 20, background: '#FDFAF7', fontSize: 13,
+    cursor: 'pointer', whiteSpace: 'nowrap', color: '#5C5049',
   },
   tabActive: {
     padding: '8px 14px', border: 'none',
-    borderRadius: 20, background: '#ff7043', color: 'white',
+    borderRadius: 20, background: '#FF6B6B', color: 'white',
     fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap',
   },
   card: {
-    background: 'white', borderRadius: 16, padding: 16,
-    marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 16, padding: 16,
+    marginBottom: 12, boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
-  cardLabel: { fontSize: 13, fontWeight: 600, color: '#888', margin: '0 0 12px' },
-  cardAmount: { fontSize: 20, fontWeight: 700, color: '#333', margin: '0 0 4px' },
-  cardInfo: { fontSize: 12, color: '#aaa', margin: '4px 0 0' },
+  cardLabel: { fontSize: 13, fontWeight: 600, color: '#9E9083', margin: '0 0 12px' },
+  cardAmount: { fontSize: 20, fontWeight: 700, color: '#2D2D2D', margin: '0 0 4px' },
+  cardInfo: { fontSize: 12, color: '#9E9083', margin: '4px 0 0' },
+  heroCard: {
+    background: 'linear-gradient(135deg, #FDFAF7 0%, #FFF0EE 100%)',
+    borderRadius: 20, padding: '24px 20px',
+    marginBottom: 14, boxShadow: '0 4px 16px rgba(180,150,130,0.14)',
+    border: '1px solid #EDE8E3',
+  },
+  heroLabel: { fontSize: 13, color: '#9E9083', fontWeight: 600, margin: '0 0 6px' },
+  heroAmount: { fontSize: 36, fontWeight: 800, letterSpacing: -1, margin: '0 0 20px' },
+  heroStats: { display: 'flex', alignItems: 'center' },
+  heroStatItem: { flex: 1, textAlign: 'center' },
+  heroStatLabel: { display: 'block', fontSize: 11, color: '#9E9083', marginBottom: 4 },
+  heroStatValue: { display: 'block', fontSize: 14, fontWeight: 700, color: '#2D2D2D' },
+  heroStatDivider: { width: 1, height: 32, background: '#EDE8E3' },
   summaryCard: {
-    background: 'white', borderRadius: 16, padding: 20,
-    marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 20, padding: 20,
+    marginBottom: 14, boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
   summaryRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  summaryLabel: { fontSize: 14, color: '#666' },
+  summaryLabel: { fontSize: 14, color: '#7A6E67' },
   summaryValue: { fontSize: 16, fontWeight: 600, color: '#2ecc71' },
   summaryMinus: { fontSize: 16, fontWeight: 600, color: '#e53e3e' },
-  summaryLabelBold: { fontSize: 16, fontWeight: 700, color: '#333' },
+  summaryLabelBold: { fontSize: 16, fontWeight: 700, color: '#2D2D2D' },
   summaryValueBold: { fontSize: 20, fontWeight: 800 },
-  divider: { height: 1, background: '#f0f0f0', margin: '8px 0 16px' },
+  divider: { height: 1, background: '#EDE8E3', margin: '8px 0 16px' },
+  recentItem: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '9px 0', borderBottom: '1px solid #EDE8E3',
+  },
+  recentCategory: {
+    fontSize: 11, color: '#FF6B6B', background: '#FFF0EE',
+    padding: '2px 8px', borderRadius: 10, fontWeight: 600, flexShrink: 0,
+  },
+  recentTitle: { flex: 1, fontSize: 14, color: '#2D2D2D' },
+  recentAmount: { fontSize: 14, fontWeight: 700, color: '#e07070' },
   progressBar: {
-    height: 12, background: '#f0f0f0', borderRadius: 6,
+    height: 12, background: '#EDE8E3', borderRadius: 6,
     overflow: 'hidden', margin: '8px 0',
   },
   progressFill: { height: '100%', borderRadius: 6, transition: 'width 0.3s' },
-  progressText: { fontSize: 13, color: '#666', margin: 0 },
+  progressText: { fontSize: 13, color: '#7A6E67', margin: 0 },
   input: {
-    width: '100%', padding: 12, border: '1px solid #f0f0f0',
+    width: '100%', padding: 12, border: '1px solid #EDE8E3',
     borderRadius: 12, fontSize: 14, outline: 'none',
-    boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit',
+    boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit', background: '#FDFAF7',
   },
-  hint: { fontSize: 12, color: '#aaa', margin: '0 0 8px' },
-  calcText: { fontSize: 14, color: '#ff7043', fontWeight: 600, margin: '0 0 8px' },
+  hint: { fontSize: 12, color: '#9E9083', margin: '0 0 8px' },
+  calcText: { fontSize: 14, color: '#FF6B6B', fontWeight: 600, margin: '0 0 8px' },
   addRow: { display: 'flex', gap: 8, alignItems: 'center' },
   listItem: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '10px 0', borderBottom: '1px solid #f0f0f0',
+    padding: '10px 0', borderBottom: '1px solid #EDE8E3',
   },
-  listLabel: { fontSize: 14, color: '#333', flex: 1 },
-  listAmount: { fontSize: 14, fontWeight: 600, color: '#333', marginRight: 8 },
+  listLabel: { fontSize: 14, color: '#2D2D2D', flex: 1 },
+  listAmount: { fontSize: 14, fontWeight: 600, color: '#2D2D2D', marginRight: 8 },
   removeBtn: {
-    background: 'none', border: 'none', color: '#ccc',
+    background: 'none', border: 'none', color: '#C4BAB1',
     cursor: 'pointer', fontSize: 14, padding: '0 4px',
   },
   addSmallBtn: {
-    padding: '12px 14px', background: '#ff7043', color: 'white',
+    padding: '12px 14px', background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600,
     cursor: 'pointer', whiteSpace: 'nowrap',
   },
   saveBtn: {
-    width: '100%', padding: 14, background: '#ff7043', color: 'white',
+    width: '100%', padding: 14, background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600,
     cursor: 'pointer', marginTop: 4, marginBottom: 12,
   },
   loadLastBtn: {
-    width: '100%', padding: 12, background: '#f5f5f5', color: '#555',
+    width: '100%', padding: 12, background: '#EDE8E3', color: '#5C5049',
     border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer', marginBottom: 12,
   },
   totalCard: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: '#fff3f0', borderRadius: 12, padding: '12px 16px', marginBottom: 12,
+    background: '#FFF0EE', borderRadius: 12, padding: '12px 16px', marginBottom: 12,
   },
-  totalLabel: { fontSize: 14, fontWeight: 600, color: '#ff7043' },
-  totalAmount: { fontSize: 18, fontWeight: 800, color: '#ff7043' },
+  totalLabel: { fontSize: 14, fontWeight: 600, color: '#FF6B6B' },
+  totalAmount: { fontSize: 18, fontWeight: 800, color: '#FF6B6B' },
   categoryRow: { display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
   catBtn: {
-    padding: '6px 12px', border: '1px solid #e0e0e0',
-    borderRadius: 20, background: 'white', fontSize: 12, cursor: 'pointer',
+    padding: '6px 12px', border: '1px solid #DDD5CE',
+    borderRadius: 20, background: '#FDFAF7', fontSize: 12, cursor: 'pointer', color: '#5C5049',
   },
   catActive: {
     padding: '6px 12px', border: 'none', borderRadius: 20,
-    background: '#ff7043', color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+    background: '#FF6B6B', color: 'white', fontSize: 12, fontWeight: 600, cursor: 'pointer',
   },
   typeRow: { display: 'flex', gap: 8, marginBottom: 8 },
   typeBtn: {
-    flex: 1, padding: 10, border: '1px solid #e0e0e0',
-    borderRadius: 12, background: 'white', fontSize: 14, cursor: 'pointer',
+    flex: 1, padding: 10, border: '1px solid #DDD5CE',
+    borderRadius: 12, background: '#FDFAF7', fontSize: 14, cursor: 'pointer', color: '#5C5049',
   },
   typeActive: {
     flex: 1, padding: 10, border: 'none', borderRadius: 12,
-    background: '#ff7043', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    background: '#FF6B6B', color: 'white', fontSize: 14, fontWeight: 600, cursor: 'pointer',
   },
   expenseItem: {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-    background: 'white', borderRadius: 12, padding: '12px 16px',
-    marginBottom: 8, boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+    background: '#FDFAF7', borderRadius: 12, padding: '12px 16px',
+    marginBottom: 8, boxShadow: '0 1px 4px rgba(180,150,130,0.10)',
   },
   expenseLeft: { display: 'flex', alignItems: 'center', gap: 8 },
   expenseCategory: {
-    fontSize: 11, color: '#ff7043', background: '#fff3f0',
+    fontSize: 11, color: '#FF6B6B', background: '#FFF0EE',
     padding: '2px 8px', borderRadius: 10, fontWeight: 600,
   },
-  expenseTitle: { fontSize: 14, color: '#333' },
+  expenseTitle: { fontSize: 14, color: '#2D2D2D' },
   expenseType: { fontSize: 14 },
   expenseRight: { display: 'flex', alignItems: 'center', gap: 8 },
-  expenseAmount: { fontSize: 14, fontWeight: 700, color: '#333' },
-  emptyText: { color: '#aaa', fontSize: 14, textAlign: 'center', padding: '20px 0' },
+  expenseAmount: { fontSize: 14, fontWeight: 700, color: '#2D2D2D' },
+  emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '20px 0' },
 };
