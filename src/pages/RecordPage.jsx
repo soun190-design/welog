@@ -6,7 +6,6 @@ import { db } from '../firebase/config';
 
 const TODAY = new Date().toISOString().split('T')[0];
 const YESTERDAY = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-const GNEWS_API_KEY = 'bcf3dada057318a80aa25e747fdb5881';
 
 function formatDate() {
   return new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });
