@@ -19,7 +19,8 @@ function NewsSection({ sectionKey, newsOpinions, setNewsOpinions, onSaveOpinion 
 const loadNews = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/news');
+      const category = sectionKey === 'morning' ? 'business' : sectionKey === 'lunch' ? 'nation' : 'world';
+      const res = await fetch('/api/news?category=' + category);
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
