@@ -20,7 +20,6 @@ const loadNews = async () => {
     setLoading(true);
     try {
       const res = await fetch('/api/news');
-      );
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
