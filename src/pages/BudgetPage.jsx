@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import {
   collection, addDoc, getDocs, doc, setDoc, getDoc,
-  query, orderBy, serverTimestamp
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
@@ -23,8 +23,7 @@ export default function BudgetPage() {
   var lastMonth = getYearMonth(-1);
 
   const [tab, setTab] = useState('summary');
-  const [budgetData, setBudgetData] = useState(null);
-  const [lastMonthFixed, setLastMonthFixed] = useState([]);
+    const [lastMonthFixed, setLastMonthFixed] = useState([]);
 
   const [salary, setSalary] = useState('');
   const [overtimeHours, setOvertimeHours] = useState('');
@@ -65,7 +64,7 @@ export default function BudgetPage() {
         setFixedCosts(data.fixedCosts || []);
         setExpenses(data.variableExpenses || []);
         setVariableGoal(String(data.variableGoal || ''));
-        setBudgetData(data);
+        
       }
 
       var lastRef = doc(db, 'couples', couple.id, 'budget', lastMonth);
