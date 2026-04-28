@@ -26,7 +26,7 @@ function getTodayQuestion() {
 }
 
 export default function HomePage() {
-  const { user, userDoc } = useAuth();
+  const { user } = useAuth();
   const { couple } = useCouple();
   const partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== (user && user.uid); });
 
