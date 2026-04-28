@@ -101,7 +101,12 @@ const styles = {
     maxWidth: 480, margin: '0 auto', minHeight: '100vh',
     display: 'flex', flexDirection: 'column', background: '#FAFAF8',
   },
-  content: { flex: 1, overflowY: 'auto', paddingBottom: 70 },
+  content: {
+    flex: 1,
+    overflowY: 'auto',
+    paddingBottom: 70,
+    paddingTop: 12,
+  },
   tabBar: {
     position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
     width: '100%', maxWidth: 480, display: 'flex', background: 'white',
