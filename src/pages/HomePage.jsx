@@ -38,7 +38,33 @@ export default function HomePage() {
   const { couple } = useCouple();
   const partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== (user && user.uid); });
 
-  const [todayQuestion] = useState(getTodayQuestion());
+  const [todayQuestion, setTodayQuestion] = useState(getTodayQuestion());
+
+  useEffect(function() {
+    var loadQuestion = async function() {
+      if (!couple) return;
+      try {
+        var ref = doc(db, 'couples', couple.id, 'daily_answers', TODAY);
+        var snap = await getDoc(ref);
+        if (snap.exists() && snap.data().question) {
+          setTodayQuestion({ question: snap.data().question, category: snap.data().category || '오늘의 질문' });
+          return;
+        }
+        var res = await fetch('/api/question');
+        var data = await res.json();
+        if (data.question) {
+          setTodayQuestion({ question: data.question, category: data.category || '오늘의 질문' });
+          await setDoc(ref, {
+            question: data.question,
+            category: data.category,
+            answers: (snap.exists() && snap.data().answers) || {},
+            updatedAt: serverTimestamp(),
+          });
+        }
+      } catch (e) { console.error(e); }
+    };
+    loadQuestion();
+  }, [couple]);
   const [myAnswer, setMyAnswer] = useState('');
   const [partnerAnswer, setPartnerAnswer] = useState('');
   const [showAnswerInput, setShowAnswerInput] = useState(false);
