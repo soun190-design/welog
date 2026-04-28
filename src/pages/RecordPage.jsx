@@ -534,4 +534,3 @@ const styles = {
     border: 'none', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
   },
 };
-};
