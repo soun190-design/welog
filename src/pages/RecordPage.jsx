@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import HealthPage from './HealthPage';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -16,11 +17,10 @@ function NewsSection({ sectionKey, newsOpinions, setNewsOpinions, onSaveOpinion 
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-const loadNews = async () => {
+  const loadNews = async () => {
     setLoading(true);
     try {
-      const category = sectionKey === 'morning' ? 'business' : sectionKey === 'lunch' ? 'nation' : 'world';
-      const res = await fetch('/api/news?category=' + category);
+      const res = await fetch('/api/news?category=' + (sectionKey === 'morning' ? 'business' : sectionKey === 'lunch' ? 'nation' : 'world'));
       const data = await res.json();
       if (data.articles && data.articles.length > 0) {
         setNews(data.articles);
@@ -74,7 +74,7 @@ const loadNews = async () => {
   );
 }
 
-export default function RecordPage() {
+function DailyRecord() {
   const { user } = useAuth();
   const { couple } = useCouple();
   const partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== (user && user.uid); });
@@ -94,7 +94,7 @@ export default function RecordPage() {
   const [newsOpinions, setNewsOpinions] = useState({});
   const [partnerRecord, setPartnerRecord] = useState(null);
 
-  useEffect(function() {
+  useState(function() {
     if (!user || !couple) return;
     var load = async function() {
       var ref = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + user.uid);
@@ -109,9 +109,9 @@ export default function RecordPage() {
       }
     };
     load();
-  }, [user, couple]);
+  }, []);
 
-  useEffect(function() {
+  useState(function() {
     if (!partnerUid || !couple) return;
     var load = async function() {
       var ref = doc(db, 'couples', couple.id, 'daily', TODAY + '_' + partnerUid);
@@ -119,9 +119,9 @@ export default function RecordPage() {
       if (snap.exists()) setPartnerRecord(snap.data());
     };
     load();
-  }, [partnerUid, couple]);
+  }, []);
 
-  useEffect(function() {
+  useState(function() {
     if (!user) return;
     var load = async function() {
       var ref = collection(db, 'users', user.uid, 'affirmations');
@@ -142,7 +142,7 @@ export default function RecordPage() {
       setTodayAffirmations(todayMap);
     };
     load();
-  }, [user]);
+  }, []);
 
   var saveToFirestore = async function(field, value) {
     if (!user || !couple) return;
@@ -163,11 +163,8 @@ export default function RecordPage() {
       await saveToFirestore('night', { diary: diary, gratitude: gratitude });
       setSaved(true);
       setTimeout(function() { setSaved(false); }, 2000);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { console.error(e); }
+    finally { setSaving(false); }
   };
 
   var handleSaveAffirmation = async function(affirmationId, text) {
@@ -409,154 +406,118 @@ export default function RecordPage() {
   );
 }
 
+export default function RecordPage() {
+  const [activeTab, setActiveTab] = useState('record');
+
+  return (
+    <div>
+      <div style={styles.tabRow}>
+        <button
+          style={activeTab === 'record' ? styles.tabActive : styles.tabBtn}
+          onClick={function() { setActiveTab('record'); }}
+        >
+          📓 기록
+        </button>
+        <button
+          style={activeTab === 'health' ? styles.tabActive : styles.tabBtn}
+          onClick={function() { setActiveTab('health'); }}
+        >
+          🏃 건강
+        </button>
+      </div>
+      {activeTab === 'record' ? <DailyRecord /> : <HealthPage />}
+    </div>
+  );
+}
+
 const styles = {
+  tabRow: {
+    display: 'flex',
+    background: 'white',
+    borderBottom: '1px solid #f0f0f0',
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+  },
+  tabBtn: {
+    flex: 1, padding: '16px',
+    border: 'none', background: 'none',
+    fontSize: 14, cursor: 'pointer', color: '#aaa', fontWeight: 600,
+  },
+  tabActive: {
+    flex: 1, padding: '16px',
+    border: 'none', background: 'none',
+    fontSize: 14, cursor: 'pointer',
+    color: '#ff7043', fontWeight: 700,
+    borderBottom: '2px solid #ff7043',
+  },
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
   headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 22, fontWeight: 700, margin: 0 },
   date: { color: '#aaa', fontSize: 14, marginTop: 4 },
   toggleBtn: {
-    padding: '6px 14px',
-    background: '#fff3f0',
-    color: '#ff7043',
-    border: 'none',
-    borderRadius: 20,
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
+    padding: '6px 14px', background: '#fff3f0', color: '#ff7043',
+    border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   card: {
-    background: 'white',
-    borderRadius: 16,
-    marginBottom: 12,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-    overflow: 'hidden',
+    background: 'white', borderRadius: 16, marginBottom: 12,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden',
   },
   sectionHeader: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 20px',
-    border: 'none',
-    background: 'none',
-    cursor: 'pointer',
+    width: '100%', display: 'flex', justifyContent: 'space-between',
+    alignItems: 'center', padding: '16px 20px', border: 'none',
+    background: 'none', cursor: 'pointer',
   },
   staticHeader: { padding: '16px 20px 0' },
   sectionTitle: { fontSize: 16, fontWeight: 600 },
   sectionBody: { padding: '4px 20px 20px' },
   label: { fontSize: 14, fontWeight: 600, color: '#555', margin: '16px 0 8px' },
   textarea: {
-    width: '100%',
-    minHeight: 80,
-    padding: 12,
-    border: '1px solid #f0f0f0',
-    borderRadius: 12,
-    fontSize: 14,
-    resize: 'none',
-    outline: 'none',
-    boxSizing: 'border-box',
-    fontFamily: 'inherit',
-    lineHeight: 1.6,
+    width: '100%', minHeight: 80, padding: 12, border: '1px solid #f0f0f0',
+    borderRadius: 12, fontSize: 14, resize: 'none', outline: 'none',
+    boxSizing: 'border-box', fontFamily: 'inherit', lineHeight: 1.6,
   },
   input: {
-    width: '100%',
-    padding: 12,
-    border: '1px solid #f0f0f0',
-    borderRadius: 12,
-    fontSize: 14,
-    outline: 'none',
-    boxSizing: 'border-box',
-    marginBottom: 8,
-    fontFamily: 'inherit',
+    width: '100%', padding: 12, border: '1px solid #f0f0f0',
+    borderRadius: 12, fontSize: 14, outline: 'none',
+    boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit',
   },
   saveBtn: {
-    width: '100%',
-    padding: 14,
-    background: '#ff7043',
-    color: 'white',
-    border: 'none',
-    borderRadius: 12,
-    fontSize: 15,
-    fontWeight: 600,
-    cursor: 'pointer',
-    marginTop: 8,
+    width: '100%', padding: 14, background: '#ff7043', color: 'white',
+    border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 600,
+    cursor: 'pointer', marginTop: 8,
   },
   cancelBtn: {
-    flex: 1,
-    padding: 12,
-    background: '#f5f5f5',
-    color: '#888',
-    border: 'none',
-    borderRadius: 12,
-    fontSize: 14,
-    cursor: 'pointer',
-    marginLeft: 8,
+    flex: 1, padding: 12, background: '#f5f5f5', color: '#888',
+    border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer', marginLeft: 8,
   },
   addBtn: {
-    width: '100%',
-    padding: 12,
-    background: '#fff3f0',
-    color: '#ff7043',
-    border: '1px dashed #ff7043',
-    borderRadius: 12,
-    fontSize: 14,
-    fontWeight: 600,
-    cursor: 'pointer',
-    marginTop: 4,
+    width: '100%', padding: 12, background: '#fff3f0', color: '#ff7043',
+    border: '1px dashed #ff7043', borderRadius: 12, fontSize: 14,
+    fontWeight: 600, cursor: 'pointer', marginTop: 4,
   },
   btnRow: { display: 'flex', gap: 8 },
-  affirmationCard: {
-    background: '#fafaf8',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-  },
+  affirmationCard: { background: '#fafaf8', borderRadius: 12, padding: 12, marginBottom: 10 },
   affirmationTitle: { fontSize: 13, fontWeight: 600, color: '#555', margin: '0 0 6px' },
   yesterdayText: { fontSize: 12, color: '#bbb', margin: '0 0 8px', fontStyle: 'italic' },
   newsLoadBtn: {
-    width: '100%',
-    padding: 12,
-    background: '#f5f5f5',
-    color: '#555',
-    border: 'none',
-    borderRadius: 12,
-    fontSize: 14,
-    cursor: 'pointer',
-    marginTop: 4,
+    width: '100%', padding: 12, background: '#f5f5f5', color: '#555',
+    border: 'none', borderRadius: 12, fontSize: 14, cursor: 'pointer', marginTop: 4,
   },
-  newsCard: {
-    background: '#fafaf8',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 10,
-  },
+  newsCard: { background: '#fafaf8', borderRadius: 12, padding: 12, marginBottom: 10 },
   newsTitle: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: '#333',
-    textDecoration: 'none',
-    display: 'block',
-    marginBottom: 4,
-    lineHeight: 1.5,
+    fontSize: 13, fontWeight: 600, color: '#333', textDecoration: 'none',
+    display: 'block', marginBottom: 4, lineHeight: 1.5,
   },
   newsSource: { fontSize: 11, color: '#aaa', margin: '0 0 8px' },
   refreshBtn: {
-    width: '100%',
-    padding: 10,
-    background: '#f5f5f5',
-    color: '#888',
-    border: 'none',
-    borderRadius: 12,
-    fontSize: 13,
-    cursor: 'pointer',
+    width: '100%', padding: 10, background: '#f5f5f5', color: '#888',
+    border: 'none', borderRadius: 12, fontSize: 13, cursor: 'pointer',
   },
   emptyCard: {
-    background: 'white',
-    borderRadius: 16,
-    padding: 40,
-    textAlign: 'center',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+    background: 'white', borderRadius: 16, padding: 40,
+    textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
   },
   emptyText: { color: '#aaa', fontSize: 14 },
   emptySmall: { color: '#bbb', fontSize: 13, textAlign: 'center', padding: '8px 0' },
