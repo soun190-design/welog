@@ -8,23 +8,15 @@ const TODAY = new Date().toISOString().split('T')[0];
 const THIS_MONTH = new Date().toISOString().substring(0, 7);
 
 const DAILY_QUESTIONS = [
-  { category: '커플', question: '처음 설렜던 순간이 언제였어?' },
-  { category: '커플', question: '상대방의 어떤 점이 제일 좋아?' },
-  { category: '커플', question: '같이 가보고 싶은 여행지는?' },
-  { category: '커플', question: '오늘 상대방에게 고마운 점은?' },
-  { category: '커플', question: '우리가 함께한 가장 행복한 순간은?' },
-  { category: '명언', question: '행복은 습관이다. 그것을 몸에 지녀라. - 아리스토텔레스' },
-  { category: '명언', question: '오늘 할 수 있는 일을 내일로 미루지 마라. - 벤자민 프랭클린' },
-  { category: '명언', question: '당신이 할 수 있다고 믿든, 할 수 없다고 믿든, 믿는 대로 된다. - 헨리 포드' },
-  { category: '명언', question: '성공은 최종 목적지가 아니다. 실패도 치명적이지 않다. 중요한 것은 계속하는 용기다. - 처칠' },
-  { category: '건강', question: '오늘 물 8잔 마셨나요? 💧' },
-  { category: '건강', question: '오늘 몇 시간 잤나요? 충분한 수면이 건강의 기본이에요.' },
-  { category: '건강', question: '오늘 스트레칭 5분만 해볼까요? 🧘' },
-  { category: '경제', question: '이번달 지출 목표를 지키고 있나요?' },
-  { category: '경제', question: '오늘 불필요한 지출은 없었나요?' },
-  { category: '데이트', question: '이번 주말 같이 뭐 할까요? 🎉' },
-  { category: '데이트', question: '요즘 가보고 싶은 맛집이 있나요? 🍽️' },
-  { category: '데이트', question: '같이 보고 싶은 영화나 드라마가 있나요? 🎬' },
+  { category: '경제/재테크', question: '요즘 가장 잘한 소비가 뭐야? 💰' },
+  { category: '경제/재테크', question: '이번달 절약하고 싶은 항목이 있어? 🎯' },
+  { category: '경제/재테크', question: '우리 함께 모으고 싶은 목돈이 있어? 💵' },
+  { category: '취향/문화', question: '최근에 본 것 중 가장 인상깊었던 건? 🎬' },
+  { category: '취향/문화', question: '같이 읽고 싶은 책이 있어? 📚' },
+  { category: '취향/문화', question: '요즘 빠져있는 콘텐츠는? 📱' },
+  { category: '데이트', question: '이번 주말에 같이 뭐 하고 싶어? 🎉' },
+  { category: '데이트', question: '요즘 가보고 싶은 맛집이 있어? 🍽️' },
+  { category: '데이트', question: '올해 안에 꼭 같이 가보고 싶은 곳은? 🗺️' },
 ];
 
 function getTodayQuestion() {
@@ -73,8 +65,7 @@ export default function HomePage() {
   const [todayRecord, setTodayRecord] = useState(null);
   const [todayHealth, setTodayHealth] = useState(null);
   const [budgetSummary, setBudgetSummary] = useState(null);
-  const [upcomingSchedule, setUpcomingSchedule] = useState(null);
-
+  
   var loadHomeData = useCallback(async function() {
     if (!user || !couple) return;
     try {
@@ -156,11 +147,9 @@ export default function HomePage() {
     return '좋은 저녁이에요 🌙';
   };
 
-  var categoryColors = {
-    '커플': '#ff7043',
-    '명언': '#9c27b0',
-    '건강': '#4caf50',
-    '경제': '#2196f3',
+var categoryColors = {
+    '경제/재테크': '#2196f3',
+    '취향/문화': '#9c27b0',
     '데이트': '#e91e63',
   };
 
