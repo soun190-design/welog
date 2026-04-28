@@ -6,6 +6,7 @@ import {
   query, orderBy, serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { createNotification } from '../firebase/notifications';
 
 const COLORS = ['#ff7043', '#42a5f5', '#66bb6a', '#ab47bc', '#ffa726', '#26c6da'];
 const COLOR_NAMES = ['코랄', '블루', '그린', '퍼플', '오렌지', '민트'];
@@ -103,10 +104,18 @@ export default function SchedulePage() {
         authorId: user.uid,
         createdAt: serverTimestamp(),
       });
-      setNewTitle(''); setNewDate(''); setNewTime('');
+setNewTitle(''); setNewDate(''); setNewTime('');
       setNewMemo(''); setNewCategoryId(''); setNewIsRecurring(false);
       setShowAdd(false);
       await loadData();
+      var partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== user.uid; });
+      if (partnerUid) {
+        await createNotification(
+          couple.id, partnerUid, 'schedule',
+          (newTitle + ' 일정이 추가됐어요 📅 ' + newDate),
+          { date: newDate, title: newTitle }
+        );
+      }
     } catch (e) { console.error(e); }
     finally { setSaving(false); }
   };
