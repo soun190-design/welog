@@ -57,16 +57,17 @@ export default function BudgetPage() {
       var ref = doc(db, 'couples', couple.id, 'budget', thisMonth);
       var snap = await getDoc(ref);
       if (snap.exists()) {
-var income = data.income || {};
+if (snap.exists()) {
+  var data = snap.data();
+  var income = data.income || {};
 
-setSalary(String(income.salary || ''));
-setOvertimeHours(String(income.overtimeHours || ''));
-setExtras(income.extras || []);
-        setFixedCosts(data.fixedCosts || []);
-        setExpenses(data.variableExpenses || []);
-        setVariableGoal(String(data.variableGoal || ''));
-        
-      }
+  setSalary(String(income.salary || ''));
+  setOvertimeHours(String(income.overtimeHours || ''));
+  setExtras(income.extras || []);
+  setFixedCosts(data.fixedCosts || []);
+  setExpenses(data.variableExpenses || []);
+  setVariableGoal(String(data.variableGoal || ''));
+}
 
       var lastRef = doc(db, 'couples', couple.id, 'budget', lastMonth);
       var lastSnap = await getDoc(lastRef);
