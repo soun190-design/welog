@@ -7,12 +7,26 @@ import RecordPage from './pages/RecordPage';
 import SharedPage from './pages/SharedPage';
 import ContentPage from './pages/ContentPage';
 import SettingsPage from './pages/SettingsPage';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { getUnreadCount } from './firebase/notifications';
 
 function AppRouter() {
   const { user, userDoc, loading: authLoading } = useAuth();
-  const { isConnected, loading: coupleLoading } = useCouple();
+  const { couple, isConnected, loading: coupleLoading } = useCouple();
   const [activeTab, setActiveTab] = useState('home');
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  var loadUnread = useCallback(async function() {
+    if (!user || !couple) return;
+    var count = await getUnreadCount(couple.id, user.uid);
+    setUnreadCount(count);
+  }, [user, couple]);
+
+  useEffect(function() {
+    loadUnread();
+    var interval = setInterval(loadUnread, 30000);
+    return function() { clearInterval(interval); };
+  }, [loadUnread]);
 
   if (authLoading || coupleLoading) return <LoadingScreen />;
   if (!user) return <LoginPage />;
@@ -28,11 +42,11 @@ function AppRouter() {
 
   const renderPage = () => {
     switch (activeTab) {
-      case 'home':     return <HomePage />;
+      case 'home':     return <HomePage onNotificationRead={loadUnread} />;
       case 'record':   return <RecordPage />;
       case 'shared':   return <SharedPage />;
       case 'content':  return <ContentPage />;
-      case 'settings': return <SettingsPage />;
+      case 'settings': return <SettingsPage onNotificationRead={loadUnread} />;
       default:         return <HomePage />;
     }
   };
@@ -43,24 +57,25 @@ function AppRouter() {
         {renderPage()}
       </div>
       <nav style={styles.tabBar}>
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            style={{
-              ...styles.tabBtn,
-              ...(activeTab === tab.id ? styles.tabBtnActive : {})
-            }}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span style={styles.tabIcon}>{tab.icon}</span>
-            <span style={{
-              ...styles.tabLabel,
-              ...(activeTab === tab.id ? styles.tabLabelActive : {})
-            }}>
-              {tab.label}
-            </span>
-          </button>
-        ))}
+        {tabs.map(function(tab) {
+          return (
+            <button
+              key={tab.id}
+              style={Object.assign({}, styles.tabBtn, activeTab === tab.id ? styles.tabBtnActive : {})}
+              onClick={function() { setActiveTab(tab.id); }}
+            >
+              <div style={styles.tabIconWrap}>
+                <span style={styles.tabIcon}>{tab.icon}</span>
+                {tab.id === 'settings' && unreadCount > 0 ? (
+                  <span style={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+                ) : null}
+              </div>
+              <span style={Object.assign({}, styles.tabLabel, activeTab === tab.id ? styles.tabLabelActive : {})}>
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
@@ -83,57 +98,32 @@ function LoadingScreen() {
 
 const styles = {
   container: {
-    maxWidth: 480,
-    margin: '0 auto',
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column',
-    background: '#FAFAF8',
+    maxWidth: 480, margin: '0 auto', minHeight: '100vh',
+    display: 'flex', flexDirection: 'column', background: '#FAFAF8',
   },
-  content: {
-    flex: 1,
-    overflowY: 'auto',
-    paddingBottom: 70,
-  },
+  content: { flex: 1, overflowY: 'auto', paddingBottom: 70 },
   tabBar: {
-    position: 'fixed',
-    bottom: 0,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: '100%',
-    maxWidth: 480,
-    display: 'flex',
-    background: 'white',
-    borderTop: '1px solid #f0f0f0',
-    boxShadow: '0 -4px 20px rgba(0,0,0,0.06)',
-    zIndex: 100,
+    position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+    width: '100%', maxWidth: 480, display: 'flex', background: 'white',
+    borderTop: '1px solid #f0f0f0', boxShadow: '0 -4px 20px rgba(0,0,0,0.06)', zIndex: 100,
   },
   tabBtn: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '8px 0',
-    border: 'none',
-    background: 'none',
-    cursor: 'pointer',
-    gap: 2,
+    flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',
+    justifyContent: 'center', padding: '8px 0', border: 'none',
+    background: 'none', cursor: 'pointer', gap: 2,
   },
-  tabBtnActive: {
-    borderTop: '2px solid #ff7043',
+  tabBtnActive: { borderTop: '2px solid #ff7043' },
+  tabIconWrap: { position: 'relative' },
+  tabIcon: { fontSize: 18 },
+  badge: {
+    position: 'absolute', top: -4, right: -8,
+    background: '#e53e3e', color: 'white',
+    fontSize: 9, fontWeight: 700,
+    padding: '1px 4px', borderRadius: 8, minWidth: 14,
+    textAlign: 'center',
   },
-  tabIcon: {
-    fontSize: 18,
-  },
-  tabLabel: {
-    fontSize: 10,
-    fontWeight: 600,
-    color: '#aaa',
-  },
-  tabLabelActive: {
-    color: '#ff7043',
-  },
+  tabLabel: { fontSize: 10, fontWeight: 600, color: '#aaa' },
+  tabLabelActive: { color: '#ff7043' },
 };
 
 export default function App() {
