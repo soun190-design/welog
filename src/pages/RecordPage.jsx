@@ -17,17 +17,21 @@ function NewsSection({ sectionKey, newsOpinions, setNewsOpinions, onSaveOpinion 
   const [loading, setLoading] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
-  const loadNews = async () => {
+const loadNews = async () => {
     setLoading(true);
     try {
       const res = await fetch(
         'https://gnews.io/api/v4/top-headlines?lang=ko&country=kr&max=4&apikey=' + GNEWS_API_KEY
       );
       const data = await res.json();
-      setNews(data.articles || []);
-      setLoaded(true);
+      if (data.articles && data.articles.length > 0) {
+        setNews(data.articles);
+        setLoaded(true);
+      } else {
+        alert('뉴스 오류: ' + JSON.stringify(data));
+      }
     } catch (e) {
-      console.error(e);
+      alert('fetch 에러: ' + e.message);
     } finally {
       setLoading(false);
     }
