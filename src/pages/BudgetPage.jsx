@@ -213,7 +213,8 @@ export default function BudgetPage() {
   };
 
   var formatNum = function(n) {
-    return (parseInt(n) || 0).toLocaleString();
+    var num = parseInt(n) || 0;
+    return Math.abs(num).toLocaleString();
   };
 
   return (
