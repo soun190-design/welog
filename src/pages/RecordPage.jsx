@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import HealthPage from './HealthPage';
+import AffirmationTimeline from '../components/AffirmationTimeline';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -91,6 +92,7 @@ function DailyRecord() {
   const [todayAffirmations, setTodayAffirmations] = useState({});
   const [newAffirmation, setNewAffirmation] = useState('');
   const [showAddAffirmation, setShowAddAffirmation] = useState(false);
+  const [showTimeline, setShowTimeline] = useState(false);
   const [newsOpinions, setNewsOpinions] = useState({});
   const [partnerRecord, setPartnerRecord] = useState(null);
 
@@ -264,8 +266,9 @@ function DailyRecord() {
     );
   }
 
-  return (
+return (
     <div style={styles.container}>
+      {showTimeline ? <AffirmationTimeline onClose={function() { setShowTimeline(false); }} /> : null}
       <div style={styles.header}>
         <div style={styles.headerRow}>
           <h2 style={styles.title}>오늘의 기록 📓</h2>
@@ -281,7 +284,10 @@ function DailyRecord() {
         </button>
         {openSection === 'morning' ? (
           <div style={styles.sectionBody}>
-            <p style={styles.label}>✏️ 나의 확언</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '16px 0 8px' }}>
+              <p style={Object.assign({}, styles.label, { margin: 0 })}>✏️ 나의 확언</p>
+              <button style={styles.timelineBtn} onClick={function() { setShowTimeline(true); }}>타임라인 📈</button>
+            </div>
             {affirmations.length === 0 ? (
               <p style={styles.emptySmall}>아직 확언이 없어요. 첫 확언을 작성해봐요!</p>
             ) : (
@@ -523,4 +529,9 @@ const styles = {
   emptySmall: { color: '#bbb', fontSize: 13, textAlign: 'center', padding: '8px 0' },
   recordText: { fontSize: 14, color: '#333', lineHeight: 1.6, margin: '8px 0' },
   gratitudeItem: { fontSize: 14, color: '#333', margin: '4px 0' },
+  timelineBtn: {
+    padding: '4px 10px', background: '#fff3f0', color: '#ff7043',
+    border: 'none', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+  },
+};
 };
