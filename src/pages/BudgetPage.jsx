@@ -6,6 +6,7 @@ import {
   serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { createNotification } from '../firebase/notifications';
 
 const OVERTIME_RATE = 12000;
 
@@ -165,7 +166,7 @@ export default function BudgetPage() {
     setFixedCosts(fixedCosts.filter(function(_, i) { return i !== index; }));
   };
 
-  var handleAddExpense = async function() {
+ var handleAddExpense = async function() {
     if (!newExpTitle.trim() || !newExpAmount) return;
     var newItem = {
       title: newExpTitle,
@@ -180,6 +181,14 @@ export default function BudgetPage() {
     setNewExpTitle('');
     setNewExpAmount('');
     await saveData({ variableExpenses: updated });
+    var partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== user.uid; });
+    if (partnerUid) {
+      await createNotification(
+        couple.id, partnerUid, 'budget',
+        (newExpCategory + ' ' + newExpTitle + ' ' + (parseInt(newExpAmount) || 0).toLocaleString() + '원 지출됐어요'),
+        { amount: parseInt(newExpAmount) || 0, category: newExpCategory }
+      );
+    }
   };
 
   var handleRemoveExpense = async function(index) {
