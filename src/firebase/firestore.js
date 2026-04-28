@@ -28,6 +28,17 @@ const generateInviteCode = () =>
   Math.random().toString(36).substring(2, 8).toUpperCase();
 
 export const createCouple = async (uid) => {
+  // 이미 커플이 있으면 기존 코드 반환
+  const userRef = doc(db, 'users', uid);
+  const userSnap = await getDoc(userRef);
+  const userData = userSnap.data();
+  
+  if (userData?.coupleId) {
+    const existing = await getCoupleDoc(userData.coupleId);
+    if (existing) return { coupleId: existing.id, inviteCode: existing.inviteCode };
+  }
+
+  // 없을 때만 새로 생성
   const inviteCode = generateInviteCode();
   const coupleRef = await addDoc(collection(db, 'couples'), {
     members: [uid],
