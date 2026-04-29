@@ -63,12 +63,6 @@ export default function SettingsPage({ onNotificationRead }) {
     return diff;
   };
 
-  var getTypeLabel = function(type) {
-    if (type === 'budget') return '💰 가계부';
-    if (type === 'schedule') return '📅 일정';
-    return '🔔 알림';
-  };
-
   var formatTime = function(createdAt) {
     if (!createdAt) return '';
     var date = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);

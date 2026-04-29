@@ -230,12 +230,6 @@ export default function HomePage() {
     return '좋은 저녁이에요 🌙';
   };
 
-  var categoryColors = {
-    '경제/재테크': '#2196f3',
-    '취향/문화': '#9c27b0',
-    '데이트': '#e91e63',
-  };
-
   return (
     <div style={styles.container}>
       {/* 상단 인사 */}
