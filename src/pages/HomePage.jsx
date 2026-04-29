@@ -288,22 +288,34 @@ export default function HomePage() {
         <div style={styles.statusGrid}>
           <div style={styles.statusItem}>
             <span style={styles.statusIcon}>📓</span>
-            <span style={styles.statusText}>일기</span>
+            <div style={styles.statusInfo}>
+              <span style={styles.statusText}>자기전 일기</span>
+              <span style={styles.statusHint}>기록 탭 → 자기 전 작성</span>
+            </div>
             <span style={styles.statusBadge}>{todayRecord && todayRecord.night ? '✅' : '⬜'}</span>
           </div>
           <div style={styles.statusItem}>
             <span style={styles.statusIcon}>🏃</span>
-            <span style={styles.statusText}>운동</span>
+            <div style={styles.statusInfo}>
+              <span style={styles.statusText}>운동</span>
+              <span style={styles.statusHint}>건강 탭 → 운동 체크</span>
+            </div>
             <span style={styles.statusBadge}>{todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '✅' : '⬜'}</span>
           </div>
           <div style={styles.statusItem}>
             <span style={styles.statusIcon}>🍽️</span>
-            <span style={styles.statusText}>식단</span>
+            <div style={styles.statusInfo}>
+              <span style={styles.statusText}>식단</span>
+              <span style={styles.statusHint}>건강 탭 → 아침 입력</span>
+            </div>
             <span style={styles.statusBadge}>{todayHealth && todayHealth.meals && todayHealth.meals.morning ? '✅' : '⬜'}</span>
           </div>
           <div style={styles.statusItem}>
             <span style={styles.statusIcon}>😊</span>
-            <span style={styles.statusText}>컨디션</span>
+            <div style={styles.statusInfo}>
+              <span style={styles.statusText}>컨디션</span>
+              <span style={styles.statusHint}>건강 탭 → 이모지 선택</span>
+            </div>
             <span style={styles.statusBadge}>{todayHealth && todayHealth.condition && todayHealth.condition.emoji ? todayHealth.condition.emoji : '⬜'}</span>
           </div>
         </div>
@@ -381,17 +393,16 @@ export default function HomePage() {
                   </div>
                   <div style={styles.todoBtns}>
                     <button
-                      style={styles.todoIconBtn}
+                      style={Object.assign({}, styles.shareBtn, todo.isShared ? styles.shareBtnActive : {})}
                       onClick={function() { handleToggleShare(todo.id, todo.isShared); }}
-                      title={todo.isShared ? '공유 중' : '공유 안 함'}
                     >
-                      {todo.isShared ? '👁️' : '🙈'}
+                      {todo.isShared ? '👁 공유중' : '공유'}
                     </button>
                     <button
-                      style={styles.todoIconBtn}
+                      style={Object.assign({}, styles.doneBtn, todo.isDone ? styles.doneBtnActive : {})}
                       onClick={function() { handleToggleTodo(todo.id, todo.isDone); }}
                     >
-                      {todo.isDone ? '↩️' : '✅'}
+                      {todo.isDone ? '↩' : '✓'}
                     </button>
                   </div>
                 </div>
@@ -486,17 +497,19 @@ const styles = {
     borderRadius: 12, fontSize: 13, cursor: 'pointer', marginTop: 4,
   },
 
-  card: { background: '#FDFAF7', borderRadius: 20, padding: 18, marginBottom: 14, boxShadow: '0 2px 10px rgba(180,150,130,0.10)' },
-  cardLabel: { fontSize: 13, fontWeight: 700, color: '#9E9083', margin: '0 0 14px' },
+  card: { background: '#FDFAF7', borderRadius: 20, padding: '14px 16px', marginBottom: 14, boxShadow: '0 2px 10px rgba(180,150,130,0.10)' },
+  cardLabel: { fontSize: 13, fontWeight: 700, color: '#9E9083', margin: '0 0 10px' },
 
-  statusGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 },
+  statusGrid: { display: 'flex', flexDirection: 'column', gap: 8 },
   statusItem: {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    padding: '16px 8px', background: '#F5F0EB', borderRadius: 16, gap: 6,
+    display: 'flex', alignItems: 'center',
+    padding: '10px 12px', background: '#F5F0EB', borderRadius: 12, gap: 10,
   },
-  statusIcon: { fontSize: 26 },
-  statusText: { fontSize: 12, color: '#9E9083', fontWeight: 600 },
-  statusBadge: { fontSize: 18 },
+  statusIcon: { fontSize: 22, flexShrink: 0 },
+  statusInfo: { flex: 1 },
+  statusText: { fontSize: 13, fontWeight: 600, color: '#2D2D2D', display: 'block' },
+  statusHint: { fontSize: 11, color: '#B0A69D', display: 'block', marginTop: 2 },
+  statusBadge: { fontSize: 20, flexShrink: 0 },
 
   todoHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
   todoHeaderBtns: { display: 'flex', gap: 8, alignItems: 'center' },
@@ -510,16 +523,26 @@ const styles = {
   },
   todoInputBox: { marginBottom: 12, background: '#F5F0EB', borderRadius: 14, padding: 12 },
   input: { width: '100%', padding: 12, border: '1px solid #EDE8E3', borderRadius: 12, fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8, fontFamily: 'inherit', background: '#FDFAF7' },
-  todoItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '11px 0', borderBottom: '1px solid #EDE8E3' },
-  urgencyBar: { width: 4, height: 38, borderRadius: 2, flexShrink: 0 },
+  todoItem: { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid #EDE8E3' },
+  urgencyBar: { width: 4, height: 34, borderRadius: 2, flexShrink: 0 },
   todoContent: { flex: 1 },
   todoText: { fontSize: 14, color: '#2D2D2D', margin: 0, lineHeight: 1.4 },
   todoDone: { textDecoration: 'line-through', color: '#9E9083' },
   todoDue: { fontSize: 11, color: '#9E9083', margin: '3px 0 0' },
-  todoBtns: { display: 'flex', gap: 4 },
-  todoIconBtn: { background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', padding: '2px' },
-  doneIcon: { fontSize: 16 },
-  emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '16px 0' },
+  todoBtns: { display: 'flex', gap: 6, alignItems: 'center' },
+  shareBtn: {
+    padding: '4px 8px', background: '#EDE8E3', color: '#9E9083',
+    border: 'none', borderRadius: 10, fontSize: 11, cursor: 'pointer', whiteSpace: 'nowrap',
+  },
+  shareBtnActive: { background: '#E8F0FE', color: '#4285f4' },
+  doneBtn: {
+    width: 34, height: 34, borderRadius: 17, border: '2px solid #DDD5CE',
+    background: '#FDFAF7', fontSize: 15, cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    color: '#B0A69D', flexShrink: 0,
+  },
+  doneBtnActive: { border: '2px solid #FF6B6B', background: '#FFF0EE', color: '#FF6B6B' },
+  emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '12px 0' },
 
   budgetRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   budgetLabel: { fontSize: 14, color: '#7A6E67' },
