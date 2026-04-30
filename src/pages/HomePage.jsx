@@ -46,6 +46,12 @@ export default function HomePage() {
   const [showPartnerTodos, setShowPartnerTodos] = useState(false);
   const [partnerTodos, setPartnerTodos] = useState([]);
 
+  // 기록 히스토리
+  const [answerHistory, setAnswerHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
   var getDaysElapsed = function(createdAt) {
     if (!createdAt) return 0;
     var created = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
@@ -206,6 +212,27 @@ export default function HomePage() {
       await loadTodos();
     } catch (e) { console.error(e); }
   };
+
+  var loadAnswerHistory = useCallback(async function() {
+    if (!user || !couple) return;
+    setHistoryLoading(true);
+    try {
+      var ref = collection(db, 'couples', couple.id, 'daily_answers');
+      var snap = await getDocs(ref);
+      var today = getToday();
+      var list = snap.docs
+        .map(function(d) { return Object.assign({ date: d.id }, d.data()); })
+        .filter(function(item) { return item.date !== today; })
+        .sort(function(a, b) { return b.date.localeCompare(a.date); });
+      setAnswerHistory(list);
+      setHistoryLoaded(true);
+    } catch (e) { console.error(e); }
+    finally { setHistoryLoading(false); }
+  }, [user, couple]);
+
+  useEffect(function() {
+    if (showHistory && !historyLoaded) loadAnswerHistory();
+  }, [showHistory, historyLoaded, loadAnswerHistory]);
 
   var calcBudget = function() {
     if (!budgetSummary) return null;
@@ -412,6 +439,54 @@ export default function HomePage() {
         )}
       </div>
 
+      {/* 기록 히스토리 */}
+      <div style={styles.card}>
+        <div style={styles.historyHeader}>
+          <p style={styles.cardLabel}>📖 기록</p>
+          <button
+            style={showHistory ? styles.historyToggleActive : styles.historyToggle}
+            onClick={function() { setShowHistory(function(p) { return !p; }); }}
+          >
+            {showHistory ? '접기' : '펼치기'}
+          </button>
+        </div>
+        {showHistory ? (
+          historyLoading ? (
+            <p style={styles.emptyText}>불러오는 중...</p>
+          ) : answerHistory.length === 0 ? (
+            <p style={styles.emptyText}>아직 기록이 없어요</p>
+          ) : (
+            answerHistory.map(function(item) {
+              var myAns = item.answers && item.answers[user.uid];
+              var partnerAns = item.answers && partnerUid && item.answers[partnerUid];
+              return (
+                <div key={item.date} style={styles.historyItem}>
+                  <div style={styles.historyItemHeader}>
+                    <span style={styles.historyDate}>{item.date}</span>
+                    {item.category ? <span style={styles.historyCategoryBadge}>{item.category}</span> : null}
+                  </div>
+                  <p style={styles.historyQuestion}>{item.question}</p>
+                  {myAns ? (
+                    <div style={styles.historyMyAnswer}>
+                      <span style={styles.historyAnswerLabel}>나</span>
+                      <p style={styles.historyAnswerText}>{myAns}</p>
+                    </div>
+                  ) : null}
+                  {partnerAns ? (
+                    <div style={styles.historyPartnerAnswer}>
+                      <span style={styles.historyAnswerLabel}>파트너 💌</span>
+                      <p style={styles.historyAnswerText}>{partnerAns}</p>
+                    </div>
+                  ) : (
+                    <p style={styles.historyNoPartner}>파트너 답변 없음</p>
+                  )}
+                </div>
+              );
+            })
+          )
+        ) : null}
+      </div>
+
       {/* 가계부 요약 */}
       {budget ? (
         <div style={styles.card}>
@@ -543,6 +618,31 @@ const styles = {
   },
   doneBtnActive: { border: '2px solid #FF6B6B', background: '#FFF0EE', color: '#FF6B6B' },
   emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '12px 0' },
+
+  historyHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  historyToggle: {
+    padding: '4px 12px', background: '#EDE8E3', color: '#9E9083',
+    border: 'none', borderRadius: 20, fontSize: 12, cursor: 'pointer',
+  },
+  historyToggleActive: {
+    padding: '4px 12px', background: '#FFF0EE', color: '#FF6B6B',
+    border: 'none', borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+  },
+  historyItem: {
+    borderBottom: '1px solid #EDE8E3', paddingBottom: 14, marginBottom: 14,
+  },
+  historyItemHeader: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 },
+  historyDate: { fontSize: 12, color: '#9E9083', fontWeight: 600 },
+  historyCategoryBadge: {
+    background: '#FFF0EE', color: '#FF6B6B',
+    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10,
+  },
+  historyQuestion: { fontSize: 14, fontWeight: 600, color: '#2D2D2D', margin: '0 0 8px', lineHeight: 1.5 },
+  historyMyAnswer: { background: '#F5F0EB', borderRadius: 10, padding: '8px 12px', marginBottom: 6 },
+  historyPartnerAnswer: { background: '#FFF0EE', borderRadius: 10, padding: '8px 12px', marginBottom: 6 },
+  historyAnswerLabel: { fontSize: 11, color: '#9E9083', fontWeight: 600, display: 'block', marginBottom: 3 },
+  historyAnswerText: { fontSize: 13, color: '#2D2D2D', margin: 0, lineHeight: 1.5 },
+  historyNoPartner: { fontSize: 12, color: '#B0A69D', fontStyle: 'italic', margin: 0 },
 
   budgetRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
   budgetLabel: { fontSize: 14, color: '#7A6E67' },
