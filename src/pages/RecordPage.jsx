@@ -6,8 +6,11 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, addDoc, query, orderBy, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-function getToday() { return new Date().toISOString().split('T')[0]; }
-function getYesterday() { return new Date(Date.now() - 86400000).toISOString().split('T')[0]; }
+function toLocalDateStr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function getToday() { return toLocalDateStr(new Date()); }
+function getYesterday() { return toLocalDateStr(new Date(Date.now() - 86400000)); }
 
 function formatDate() {
   return new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' });

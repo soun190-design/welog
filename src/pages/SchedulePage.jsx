@@ -157,7 +157,7 @@ setNewTitle(''); setNewDate(''); setNewTime('');
   var month = currentDate.getMonth();
   var monthDays = getMonthDays(year, month);
   var weekDays = getWeekDays(currentDate);
-  var todayStr = new Date().toISOString().split('T')[0];
+  var todayStr = (function() { var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
 
   return (
     <div style={styles.container}>
@@ -235,7 +235,7 @@ setNewTitle(''); setNewDate(''); setNewTime('');
           </div>
           <div style={styles.weekGrid}>
             {weekDays.map(function(d, i) {
-              var dateStr = d.toISOString().split('T')[0];
+              var dateStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
               var daySchedules = getSchedulesForDate(dateStr);
               var isToday = dateStr === todayStr;
               var isSelected = dateStr === selectedDate;

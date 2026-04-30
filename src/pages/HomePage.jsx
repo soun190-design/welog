@@ -4,8 +4,14 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-function getToday() { return new Date().toISOString().split('T')[0]; }
-function getThisMonth() { return new Date().toISOString().substring(0, 7); }
+function getToday() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function getThisMonth() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
 
 const DAILY_QUESTIONS = [
   { category: '경제/재테크', question: '요즘 가장 잘한 소비가 뭐야? 💰' },

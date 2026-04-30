@@ -4,8 +4,14 @@ import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-function getToday() { return new Date().toISOString().split('T')[0]; }
-function getThisMonth() { return new Date().toISOString().substring(0, 7); }
+function getToday() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function getThisMonth() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
 
 const CONDITION_EMOJIS = ['😴', '😔', '😐', '🙂', '😊', '💪'];
 const CONDITION_LABELS = ['매우피곤', '피곤', '보통', '괜찮음', '좋음', '최고'];
