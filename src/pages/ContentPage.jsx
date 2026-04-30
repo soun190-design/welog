@@ -160,16 +160,30 @@ export default function ContentPage() {
 
   var renderStars = function(rating, onSelect) {
     var stars = [];
-    for (var i = 1; i <= 10; i++) {
-      var val = i * 0.5;
+    for (var i = 1; i <= 5; i++) {
+      var halfVal = i - 0.5;
+      var fullVal = i;
+      var isFull = rating >= fullVal;
+      var isHalf = !isFull && rating >= halfVal;
       stars.push(
-        <button
-          key={i}
-          style={Object.assign({}, styles.starBtn, { color: val <= rating ? '#ff7043' : '#ddd' })}
-          onClick={onSelect ? (function(v) { return function() { onSelect(v); }; })(val) : undefined}
-        >
-          {i % 2 === 1 ? '◐' : '★'}
-        </button>
+        <div key={i} style={styles.starWrap}>
+          <span style={styles.starEmpty}>★</span>
+          {(isFull || isHalf) ? (
+            <span style={Object.assign({}, styles.starFilled, isHalf ? styles.starHalf : {})}>★</span>
+          ) : null}
+          {onSelect ? (
+            <div style={styles.starClickLayer}>
+              <button
+                style={styles.starHalfBtn}
+                onClick={(function(v) { return function() { onSelect(v); }; })(halfVal)}
+              />
+              <button
+                style={styles.starHalfBtn}
+                onClick={(function(v) { return function() { onSelect(v); }; })(fullVal)}
+              />
+            </div>
+          ) : null}
+        </div>
       );
     }
     return <div style={styles.stars}>{stars}</div>;
@@ -351,7 +365,13 @@ export default function ContentPage() {
                       <div style={styles.ratingRow}>
                         <span style={styles.ratingLabel}>나</span>
                         {myReview ? (
-                          <span style={styles.ratingValue}>★ {myReview.rating}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={styles.ratingValue}>★ {myReview.rating}</span>
+                            <button
+                              style={styles.editBtn}
+                              onClick={(function(id, rev) { return function() { setShowReview(id); setMyRating(rev.rating); setMyComment(rev.comment || ''); }; })(content.id, myReview)}
+                            >수정</button>
+                          </div>
                         ) : (
                           <button
                             style={styles.writeBtn}
@@ -382,10 +402,10 @@ export default function ContentPage() {
 
               {showReview === content.id ? (
                 <div style={styles.reviewBox}>
-                  <p style={styles.reviewLabel}>평점 선택 (0.5점 단위)</p>
+                  <p style={styles.reviewLabel}>별점 선택</p>
                   {renderStars(myRating, setMyRating)}
                   <p style={styles.ratingDisplay}>
-                    {myRating > 0 ? myRating + ' / 10' : '평점을 선택해주세요'}
+                    {myRating > 0 ? '★ ' + myRating + ' / 5' : '별점을 선택해주세요'}
                   </p>
                   <input
                     style={styles.commentInput}
@@ -485,11 +505,20 @@ const styles = {
     padding: '3px 10px', border: 'none', borderRadius: 20,
     background: '#FFF0EE', color: '#FF6B6B', fontSize: 12, fontWeight: 600, cursor: 'pointer',
   },
+  editBtn: {
+    padding: '2px 8px', border: '1px solid #DDD5CE', borderRadius: 20,
+    background: '#FDFAF7', color: '#9E9083', fontSize: 11, cursor: 'pointer',
+  },
   commentText: { fontSize: 13, color: '#5C5049', fontStyle: 'italic', margin: '4px 0 0' },
   reviewBox: { padding: '0 16px 16px', borderTop: '1px solid #EDE8E3', marginTop: 4 },
   reviewLabel: { fontSize: 13, fontWeight: 600, color: '#5C5049', margin: '12px 0 8px' },
-  stars: { display: 'flex', gap: 2 },
-  starBtn: { background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', padding: 2 },
+  stars: { display: 'flex', gap: 4 },
+  starWrap: { position: 'relative', display: 'inline-block', width: 36, height: 36, fontSize: 32, lineHeight: '36px', textAlign: 'center' },
+  starEmpty: { color: '#DDD5CE', userSelect: 'none' },
+  starFilled: { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', color: '#FF6B6B', userSelect: 'none' },
+  starHalf: { clipPath: 'inset(0 50% 0 0)' },
+  starClickLayer: { position: 'absolute', inset: 0, display: 'flex' },
+  starHalfBtn: { flex: 1, background: 'none', border: 'none', cursor: 'pointer', padding: 0 },
   ratingDisplay: { fontSize: 13, color: '#FF6B6B', fontWeight: 600, margin: '8px 0' },
   commentInput: {
     width: '100%', padding: 12, border: '1px solid #EDE8E3', borderRadius: 12,
