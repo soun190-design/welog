@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
-import { doc, getDoc, setDoc, collection, addDoc, getDocs, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 function getToday() {
@@ -47,73 +47,17 @@ export default function HomePage() {
   // 파트너 감정 카드
   const PARTNER_MOODS = ['🥰', '😊', '😐', '😔', '😫'];
   const [myMood, setMyMood] = useState('');
-  const [partnerMood, setPartnerMood] = useState('');
+  const [partnerMood] = useState('');
   const [moodSaved, setMoodSaved] = useState(false);
 
   // FAB
   const [showFab, setShowFab] = useState(false);
-
-  // 투두리스트
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
-  const [newTodoDue, setNewTodoDue] = useState('');
-  const [showTodoInput, setShowTodoInput] = useState(false);
-  const [showPartnerTodos, setShowPartnerTodos] = useState(false);
-  const [partnerTodos, setPartnerTodos] = useState([]);
 
   // 기록 히스토리
   const [answerHistory, setAnswerHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
-
-  var getDaysElapsed = function(createdAt) {
-    if (!createdAt) return 0;
-    var created = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
-    var now = new Date();
-    return Math.floor((now - created) / (1000 * 60 * 60 * 24));
-  };
-
-  var getUrgencyColor = function(todo) {
-    if (todo.isDone) return '#e0e0e0';
-    if (todo.dueDate && todo.dueDate < getToday()) return '#e53e3e';
-    var days = getDaysElapsed(todo.createdAt);
-    if (todo.dueDate) {
-      var dueDate = new Date(todo.dueDate);
-      var daysLeft = Math.floor((dueDate - new Date()) / (1000 * 60 * 60 * 24));
-      if (daysLeft <= 1) return '#e53e3e';
-      if (daysLeft <= 3) return '#f39c12';
-      return '#66bb6a';
-    }
-    if (days >= 5) return '#e53e3e';
-    if (days >= 3) return '#f39c12';
-    if (days >= 1) return '#ffa726';
-    return '#66bb6a';
-  };
-
-  var loadTodos = useCallback(async function() {
-    if (!user) return;
-    try {
-      var ref = collection(db, 'users', user.uid, 'todos');
-      var snap = await getDocs(ref);
-      var list = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
-      list.sort(function(a, b) {
-        if (a.isDone !== b.isDone) return a.isDone ? 1 : -1;
-        return 0;
-      });
-      setTodos(list);
-    } catch (e) { console.error(e); }
-  }, [user]);
-
-  var loadPartnerTodos = useCallback(async function() {
-    if (!partnerUid) return;
-    try {
-      var ref = collection(db, 'users', partnerUid, 'todos');
-      var snap = await getDocs(ref);
-      var list = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
-      setPartnerTodos(list.filter(function(t) { return t.isShared; }));
-    } catch (e) { console.error(e); }
-  }, [partnerUid]);
 
   var loadHomeData = useCallback(async function() {
     if (!user || !couple) return;
@@ -146,12 +90,7 @@ export default function HomePage() {
 
   useEffect(function() {
     loadHomeData();
-    loadTodos();
-  }, [loadHomeData, loadTodos]);
-
-  useEffect(function() {
-    if (showPartnerTodos) loadPartnerTodos();
-  }, [showPartnerTodos, loadPartnerTodos]);
+  }, [loadHomeData]);
 
   useEffect(function() {
     if (!couple) return;
@@ -188,43 +127,6 @@ export default function HomePage() {
       setAnswerSaved(true);
       setShowAnswerInput(false);
       await loadHomeData();
-    } catch (e) { console.error(e); }
-  };
-
-  var handleAddTodo = async function() {
-    if (!newTodo.trim() || !user) return;
-    try {
-      var ref = collection(db, 'users', user.uid, 'todos');
-      await addDoc(ref, {
-        content: newTodo,
-        dueDate: newTodoDue || null,
-        isDone: false,
-        isShared: false,
-        createdAt: serverTimestamp(),
-      });
-      setNewTodo('');
-      setNewTodoDue('');
-      setShowTodoInput(false);
-      await loadTodos();
-    } catch (e) { console.error(e); }
-  };
-
-  var handleToggleTodo = async function(todoId, isDone) {
-    if (!user) return;
-    try {
-      await updateDoc(doc(db, 'users', user.uid, 'todos', todoId), {
-        isDone: !isDone,
-        doneAt: !isDone ? serverTimestamp() : null,
-      });
-      await loadTodos();
-    } catch (e) { console.error(e); }
-  };
-
-  var handleToggleShare = async function(todoId, isShared) {
-    if (!user) return;
-    try {
-      await updateDoc(doc(db, 'users', user.uid, 'todos', todoId), { isShared: !isShared });
-      await loadTodos();
     } catch (e) { console.error(e); }
   };
 
