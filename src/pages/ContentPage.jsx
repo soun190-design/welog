@@ -70,20 +70,18 @@ export default function ContentPage() {
         });
         setSearchResults(movieResults);
       } else {
-        var bookRes = await fetch(
-          'https://www.googleapis.com/books/v1/volumes?q=' + encodeURIComponent(searchQuery) + '&maxResults=5&langRestrict=ko'
-        );
+        var bookRes = await fetch('/api/books?query=' + encodeURIComponent(searchQuery));
         var bookData = await bookRes.json();
         var bookResults = (bookData.items || []).map(function(b) {
-          var info = b.volumeInfo;
+          var stripTags = function(str) { return str ? str.replace(/<[^>]*>/g, '') : ''; };
           return {
             type: 'book',
-            title: info.title,
-            thumbnail: (info.imageLinks && info.imageLinks.thumbnail) ? info.imageLinks.thumbnail : null,
-            director: (info.authors || []).join(', '),
-            description: info.description || '',
-            year: info.publishedDate ? info.publishedDate.substring(0, 4) : '',
-            apiId: b.id,
+            title: stripTags(b.title),
+            thumbnail: b.image || null,
+            director: stripTags(b.author),
+            description: stripTags(b.description) || '',
+            year: b.pubdate ? b.pubdate.substring(0, 4) : '',
+            apiId: b.isbn,
           };
         });
         setSearchResults(bookResults);
