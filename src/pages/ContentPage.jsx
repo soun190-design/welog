@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Clapperboard, BookOpen, Plus } from 'lucide-react';
+import { Clapperboard, BookOpen, Plus, BookMarked } from 'lucide-react';
+import BookNotes from '../components/BookNotes';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import {
@@ -29,6 +30,7 @@ export default function ContentPage() {
   const [myRating, setMyRating] = useState(0);
   const [myComment, setMyComment] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showBookNotes, setShowBookNotes] = useState(null);
 
   var loadContents = useCallback(async function() {
     if (!couple) return;
@@ -191,6 +193,18 @@ export default function ContentPage() {
   };
 
   var filtered = getFilteredContents();
+
+  if (showBookNotes) {
+    return (
+      <BookNotes
+        content={showBookNotes}
+        coupleId={couple.id}
+        user={user}
+        partnerUid={partnerUid}
+        onBack={function() { setShowBookNotes(null); }}
+      />
+    );
+  }
 
   return (
     <div style={styles.container}>
@@ -361,6 +375,17 @@ export default function ContentPage() {
                         <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>✅</button>
                       ) : null}
                     </div>
+                    {content.type === 'book' && (content.status === 'ongoing' || content.status === 'done') ? (
+                      <button
+                        style={styles.bookNoteBtn}
+                        onClick={(function(c) { return function() { setShowBookNotes(c); }; })(content)}
+                      >
+                        <div style={styles.bookNoteBtnIcon}>
+                          <BookMarked size={16} color="#3949AB" strokeWidth={1.5} />
+                        </div>
+                        <span style={styles.bookNoteBtnText}>독서 기록</span>
+                      </button>
+                    ) : null}
                     {content.status === 'done' ? (
                       <div style={styles.ratingArea}>
                         <div style={styles.ratingRow}>
@@ -592,6 +617,19 @@ const styles = {
     padding: '6px 12px', background: '#FFF0EE', color: '#FF6B6B',
     border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
+  bookNoteBtn: {
+    display: 'flex', alignItems: 'center', gap: 8,
+    width: '100%', padding: '8px 10px',
+    background: 'linear-gradient(135deg, #E8EAF6, #C5CAE9)',
+    border: 'none', borderRadius: 10, cursor: 'pointer', marginTop: 8,
+  },
+  bookNoteBtnIcon: {
+    width: 28, height: 28, borderRadius: 14,
+    background: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  bookNoteBtnText: { fontSize: 12, fontWeight: 600, color: '#3949AB' },
   emptyCard: {
     background: '#FDFAF7', borderRadius: 20, padding: 40,
     textAlign: 'center', boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
