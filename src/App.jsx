@@ -55,6 +55,12 @@ function AppRouter() {
     <div style={styles.container}>
       <header style={styles.welogHeader}>
         <span style={styles.welogLogo}>♥ Welog</span>
+        <button style={styles.headerBell} onClick={function() { setActiveTab('settings'); }}>
+          🔔
+          {unreadCount > 0 ? (
+            <span style={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>
+          ) : null}
+        </button>
       </header>
       <div style={styles.content}>
         {renderPage()}
@@ -134,9 +140,14 @@ const styles = {
     background: '#FDFAF7', padding: '14px 24px',
     borderBottom: '1px solid #EDE8E3',
     position: 'sticky', top: 0, zIndex: 50,
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
   },
   welogLogo: {
     fontSize: 18, fontWeight: 800, color: '#FF6B6B', letterSpacing: -0.5,
+  },
+  headerBell: {
+    background: 'none', border: 'none', cursor: 'pointer',
+    fontSize: 20, padding: 4, color: '#9E9083', position: 'relative',
   },
   content: {
     flex: 1,

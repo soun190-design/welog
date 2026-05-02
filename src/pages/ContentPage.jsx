@@ -195,8 +195,14 @@ export default function ContentPage() {
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerRow}>
-          <h2 style={styles.title}>컨텐츠 📚</h2>
+          <div>
+            <h2 style={styles.title}>콘텐츠</h2>
+            <p style={styles.subcopy}>함께 보고 싶은, 나누고 싶은 이야기들</p>
+          </div>
           <button style={styles.addBtn} onClick={function() { setShowSearch(true); }}>+ 추가</button>
+        </div>
+        <div style={styles.guideCard}>
+          <span style={styles.guideText}>둘 다 별점을 남기면 점수가 공개돼요 ⭐</span>
         </div>
       </div>
 
@@ -313,121 +319,105 @@ export default function ContentPage() {
 
       {filtered.length === 0 ? (
         <div style={styles.emptyCard}>
-          <p style={styles.emptyText}>아직 추가된 컨텐츠가 없어요</p>
+          <p style={styles.emptyEmoji}>🎬</p>
+          <p style={styles.emptyTitle}>아직 추가된 콘텐츠가 없어요</p>
+          <p style={styles.emptyDesc}>함께 보고 싶은 영화나 책을 추가해봐요</p>
           <button style={styles.emptyAddBtn} onClick={function() { setShowSearch(true); }}>+ 추가하기</button>
         </div>
       ) : (
-        filtered.map(function(content) {
-          var myReview = (content.reviews && content.reviews[user.uid]) || null;
-          var partnerReview = (content.reviews && partnerUid && content.reviews[partnerUid]) || null;
-          var bothDone = content.reviewCount === 2;
-
-          return (
-            <div key={content.id} style={styles.card}>
-              <div style={styles.cardInner}>
-                {/* 사이드 썸네일 */}
-                <div style={styles.cardThumbWrap}>
-                  {content.thumbnail ? (
-                    <img src={content.thumbnail} alt={content.title} style={styles.cardThumb} />
-                  ) : (
-                    <div style={styles.cardNoThumb}>{content.type === 'movie' ? '🎬' : '📖'}</div>
-                  )}
-                </div>
-
-                {/* 정보 */}
-                <div style={styles.cardBody}>
-                  <div style={styles.cardTitleRow}>
-                    <p style={styles.cardTitle}>{content.title}</p>
+        <div>
+          <div style={styles.gridContainer}>
+            {filtered.map(function(content) {
+              var myReview = (content.reviews && content.reviews[user.uid]) || null;
+              var partnerReview = (content.reviews && partnerUid && content.reviews[partnerUid]) || null;
+              var bothDone = content.reviewCount === 2;
+              return (
+                <div key={content.id} style={styles.gridCard}>
+                  <div style={styles.gridThumbWrap}>
+                    {content.thumbnail ? (
+                      <img src={content.thumbnail} alt={content.title} style={styles.gridThumb} />
+                    ) : (
+                      <div style={styles.gridNoThumb}>{content.type === 'movie' ? '🎬' : '📖'}</div>
+                    )}
                     <span style={content.type === 'movie' ? styles.typeBadgeMovie : styles.typeBadgeBook}>
                       {content.type === 'movie' ? 'MOVIE' : 'BOOK'}
                     </span>
                   </div>
-                  <p style={styles.cardSub}>{content.director}{content.year ? ' · ' + content.year : ''}</p>
-                  <div style={styles.statusBtnRow}>
-                    {content.status !== 'ongoing' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
-                        {content.status === 'wish' ? '▶️ 시작' : '↩️ 진행중으로'}
-                      </button>
-                    ) : null}
-                    {content.status !== 'done' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>
-                        ✅ 완료
-                      </button>
-                    ) : null}
-                    {content.status !== 'wish' ? (
-                      <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'wish'); }; })(content.id)}>
-                        🎯 위시로
-                      </button>
+                  <div style={styles.gridBody}>
+                    <p style={styles.gridTitle}>{content.title}</p>
+                    {content.year ? <p style={styles.gridSub}>{content.year}</p> : null}
+                    <div style={styles.statusBtnRow}>
+                      {content.status !== 'ongoing' ? (
+                        <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'ongoing'); }; })(content.id)}>
+                          {content.status === 'wish' ? '▶ 시작' : '↩ 진행중'}
+                        </button>
+                      ) : null}
+                      {content.status !== 'done' ? (
+                        <button style={styles.smallBtn} onClick={(function(id) { return function() { handleStatusChange(id, 'done'); }; })(content.id)}>✅</button>
+                      ) : null}
+                    </div>
+                    {content.status === 'done' ? (
+                      <div style={styles.ratingArea}>
+                        <div style={styles.ratingRow}>
+                          <span style={styles.ratingLabel}>나</span>
+                          {myReview ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                              <span style={styles.ratingValue}>★ {myReview.rating}</span>
+                              <button style={styles.editBtn}
+                                onClick={(function(id, rev) { return function() { setShowReview(id); setMyRating(rev.rating); setMyComment(rev.comment || ''); }; })(content.id, myReview)}
+                              >수정</button>
+                            </div>
+                          ) : (
+                            <button style={styles.writeBtn}
+                              onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
+                            >평가</button>
+                          )}
+                        </div>
+                        <div style={styles.ratingRow}>
+                          <span style={styles.ratingLabel}>파트너</span>
+                          {bothDone ? (
+                            <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
+                          ) : (
+                            <span style={styles.blindText}>작성 전</span>
+                          )}
+                        </div>
+                      </div>
                     ) : null}
                   </div>
-                  {content.status === 'done' ? (
-                    <div style={styles.ratingArea}>
-                      <div style={styles.ratingRow}>
-                        <span style={styles.ratingLabel}>나</span>
-                        {myReview ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span style={styles.ratingValue}>★ {myReview.rating}</span>
-                            <button
-                              style={styles.editBtn}
-                              onClick={(function(id, rev) { return function() { setShowReview(id); setMyRating(rev.rating); setMyComment(rev.comment || ''); }; })(content.id, myReview)}
-                            >수정</button>
-                          </div>
-                        ) : (
-                          <button
-                            style={styles.writeBtn}
-                            onClick={(function(id) { return function() { setShowReview(id); setMyRating(0); setMyComment(''); }; })(content.id)}
-                          >
-                            평가하기
-                          </button>
-                        )}
+                  {showReview === content.id ? (
+                    <div style={styles.reviewBox}>
+                      <p style={styles.reviewLabel}>별점 선택</p>
+                      {renderStars(myRating, setMyRating)}
+                      <p style={styles.ratingDisplay}>
+                        {myRating > 0 ? '★ ' + myRating + ' / 5' : '별점을 선택해주세요'}
+                      </p>
+                      <input
+                        style={styles.commentInput}
+                        placeholder="한줄평 (선택)"
+                        value={myComment}
+                        onChange={function(e) { setMyComment(e.target.value); }}
+                      />
+                      <div style={styles.reviewBtnRow}>
+                        <button style={styles.cancelReviewBtn} onClick={function() { setShowReview(null); }}>취소</button>
+                        <button
+                          style={styles.saveReviewBtn}
+                          onClick={(function(id) { return function() { handleSaveReview(id); }; })(content.id)}
+                          disabled={saving || !myRating}
+                        >
+                          {saving ? '저장중...' : '저장'}
+                        </button>
                       </div>
-                      <div style={styles.ratingRow}>
-                        <span style={styles.ratingLabel}>파트너</span>
-                        {bothDone ? (
-                          <span style={styles.ratingValue}>★ {partnerReview && partnerReview.rating}</span>
-                        ) : (
-                          <span style={styles.blindText}>작성 전</span>
-                        )}
-                      </div>
-                      {(bothDone && myReview && myReview.comment) ? (
-                        <p style={styles.commentText}>"{myReview.comment}"</p>
-                      ) : null}
-                      {(bothDone && partnerReview && partnerReview.comment) ? (
-                        <p style={styles.commentText}>💌 "{partnerReview.comment}"</p>
-                      ) : null}
                     </div>
                   ) : null}
                 </div>
-              </div>
-
-              {showReview === content.id ? (
-                <div style={styles.reviewBox}>
-                  <p style={styles.reviewLabel}>별점 선택</p>
-                  {renderStars(myRating, setMyRating)}
-                  <p style={styles.ratingDisplay}>
-                    {myRating > 0 ? '★ ' + myRating + ' / 5' : '별점을 선택해주세요'}
-                  </p>
-                  <input
-                    style={styles.commentInput}
-                    placeholder="한줄평 (선택)"
-                    value={myComment}
-                    onChange={function(e) { setMyComment(e.target.value); }}
-                  />
-                  <div style={styles.reviewBtnRow}>
-                    <button style={styles.cancelReviewBtn} onClick={function() { setShowReview(null); }}>취소</button>
-                    <button
-                      style={styles.saveReviewBtn}
-                      onClick={(function(id) { return function() { handleSaveReview(id); }; })(content.id)}
-                      disabled={saving || !myRating}
-                    >
-                      {saving ? '저장중...' : '저장'}
-                    </button>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          );
-        })
+              );
+            })}
+            <button style={styles.gridAddCard} onClick={function() { setShowSearch(true); }}>
+              <span style={styles.gridAddIcon}>+</span>
+              <span style={styles.gridAddText}>추가하기</span>
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
@@ -435,12 +425,19 @@ export default function ContentPage() {
 
 const styles = {
   container: { padding: 20, paddingBottom: 40 },
-  header: { padding: '20px 0 12px' },
-  headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
+  header: { padding: '20px 0 4px' },
+  headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' },
+  title: { fontSize: 32, fontWeight: 800, margin: 0, color: '#2D2D2D', letterSpacing: -0.5 },
+  subcopy: { fontSize: 13, color: '#B0A69D', margin: '4px 0 0', fontWeight: 400 },
+  guideCard: {
+    background: '#FFF8F0', border: '1px solid #FFE0CC',
+    borderRadius: 12, padding: '10px 14px', margin: '12px 0',
+  },
+  guideText: { fontSize: 13, color: '#FF6B6B', fontWeight: 600 },
   addBtn: {
     padding: '8px 16px', background: '#FF6B6B', color: 'white',
     border: 'none', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    marginTop: 4, flexShrink: 0,
   },
   filterRow: { display: 'flex', gap: 8, marginBottom: 12 },
   filterBtn: {
@@ -466,26 +463,40 @@ const styles = {
     padding: '6px 14px', border: '1px solid #DDD5CE',
     borderRadius: 20, background: '#FDFAF7', fontSize: 13, cursor: 'pointer', color: '#5C5049',
   },
-  card: {
-    background: '#FDFAF7', borderRadius: 20, marginBottom: 14,
+  gridContainer: {
+    display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12,
+  },
+  gridCard: {
+    background: '#FDFAF7', borderRadius: 20,
     boxShadow: '0 2px 10px rgba(180,150,130,0.12)', overflow: 'hidden',
   },
-  cardInner: { display: 'flex', alignItems: 'flex-start', padding: '14px 16px', gap: 12 },
-  cardThumbWrap: { flexShrink: 0 },
-  cardThumb: { width: 60, height: 90, objectFit: 'cover', borderRadius: 8 },
-  cardNoThumb: {
-    width: 60, height: 90, background: '#EDE8E3', borderRadius: 8,
-    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+  gridThumbWrap: { position: 'relative' },
+  gridThumb: { width: '100%', height: 160, objectFit: 'cover', display: 'block' },
+  gridNoThumb: {
+    width: '100%', height: 160, background: '#EDE8E3',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36,
   },
+  gridBody: { padding: '10px 12px 12px' },
+  gridTitle: { fontSize: 13, fontWeight: 700, margin: '0 0 2px', lineHeight: 1.4, color: '#2D2D2D' },
+  gridSub: { fontSize: 11, color: '#9E9083', margin: '0 0 6px' },
+  gridAddCard: {
+    background: '#FDFAF7', borderRadius: 20, border: '2px dashed #EDE8E3',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    height: 220, cursor: 'pointer', gap: 8,
+  },
+  gridAddIcon: { fontSize: 32, color: '#C4BAB1' },
+  gridAddText: { fontSize: 13, color: '#B0A69D', fontWeight: 600 },
   typeBadgeMovie: {
+    position: 'absolute', top: 8, left: 8,
     background: '#FF6B6B', color: 'white',
-    fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-    letterSpacing: 0.5, flexShrink: 0,
+    fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 6,
+    letterSpacing: 0.5,
   },
   typeBadgeBook: {
+    position: 'absolute', top: 8, left: 8,
     background: '#5A8A6A', color: 'white',
-    fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-    letterSpacing: 0.5, flexShrink: 0,
+    fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 6,
+    letterSpacing: 0.5,
   },
   cardBody: { flex: 1, minWidth: 0 },
   cardTitleRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8, marginBottom: 4 },
@@ -577,12 +588,16 @@ const styles = {
     border: 'none', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer',
   },
   emptyCard: {
-    background: '#FDFAF7', borderRadius: 16, padding: 40,
+    background: '#FDFAF7', borderRadius: 20, padding: 40,
     textAlign: 'center', boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
+  emptyEmoji: { fontSize: 48, margin: '0 0 12px' },
+  emptyTitle: { color: '#2D2D2D', fontSize: 16, fontWeight: 700, margin: '0 0 6px' },
+  emptyDesc: { color: '#B0A69D', fontSize: 13, margin: '0 0 20px' },
   emptyText: { color: '#9E9083', fontSize: 14, marginBottom: 16 },
   emptyAddBtn: {
-    padding: '10px 24px', background: '#FF6B6B', color: 'white',
-    border: 'none', borderRadius: 20, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+    padding: '12px 28px', background: '#FF6B6B', color: 'white',
+    border: 'none', borderRadius: 25, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+    boxShadow: '0 4px 16px rgba(255,107,107,0.35)',
   },
 };

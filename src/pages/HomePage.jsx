@@ -44,6 +44,15 @@ export default function HomePage() {
   const [todayHealth, setTodayHealth] = useState(null);
   const [budgetSummary, setBudgetSummary] = useState(null);
 
+  // 파트너 감정 카드
+  const PARTNER_MOODS = ['🥰', '😊', '😐', '😔', '😫'];
+  const [myMood, setMyMood] = useState('');
+  const [partnerMood, setPartnerMood] = useState('');
+  const [moodSaved, setMoodSaved] = useState(false);
+
+  // FAB
+  const [showFab, setShowFab] = useState(false);
+
   // 투두리스트
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
@@ -263,15 +272,76 @@ export default function HomePage() {
     return '좋은 저녁이에요 🌙';
   };
 
+  var handleMoodSelect = function(emoji) {
+    setMyMood(emoji);
+    setMoodSaved(true);
+    setTimeout(function() { setMoodSaved(false); }, 2000);
+  };
+
   return (
     <div style={styles.container}>
+      {/* FAB 바텀시트 오버레이 */}
+      {showFab ? (
+        <div style={styles.fabOverlay} onClick={function() { setShowFab(false); }}>
+          <div style={styles.fabSheet} onClick={function(e) { e.stopPropagation(); }}>
+            <div style={styles.fabSheetHandle} />
+            <p style={styles.fabSheetTitle}>빠른 입력</p>
+            <div style={styles.fabSheetGrid}>
+              {[
+                { icon: '📓', label: '기록 작성' },
+                { icon: '💸', label: '지출 추가' },
+                { icon: '✅', label: '할 일 추가' },
+                { icon: '😊', label: '감정 선택' },
+              ].map(function(item) {
+                return (
+                  <button key={item.label} style={styles.fabSheetItem} onClick={function() { setShowFab(false); }}>
+                    <span style={styles.fabSheetIcon}>{item.icon}</span>
+                    <span style={styles.fabSheetLabel}>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* FAB 버튼 */}
+      <button style={styles.fab} onClick={function() { setShowFab(true); }}>
+        <span style={styles.fabIcon}>+</span>
+      </button>
+
       {/* 상단 인사 */}
       <div style={styles.header}>
-        <div>
+        <img src={(user && user.photoURL) || 'https://via.placeholder.com/40'} alt="프로필" style={styles.avatar} />
+        <div style={{ flex: 1 }}>
           <p style={styles.greeting}>{getGreeting()}</p>
           <h2 style={styles.name}>{user && user.displayName && user.displayName.split(' ')[0]} 💑</h2>
         </div>
-        <img src={(user && user.photoURL) || 'https://via.placeholder.com/40'} alt="프로필" style={styles.avatar} />
+      </div>
+
+      {/* 파트너 감정 카드 */}
+      <div style={styles.moodCard}>
+        <p style={styles.moodCardTitle}>오늘 파트너는 어때요? 💭</p>
+        <div style={styles.moodRow}>
+          {PARTNER_MOODS.map(function(emoji) {
+            return (
+              <button
+                key={emoji}
+                style={Object.assign({}, styles.moodBtn, myMood === emoji ? styles.moodBtnActive : {})}
+                onClick={function() { handleMoodSelect(emoji); }}
+              >
+                <span style={styles.moodEmoji}>{emoji}</span>
+              </button>
+            );
+          })}
+        </div>
+        {myMood ? (
+          <div style={styles.moodResult}>
+            <span style={styles.moodResultText}>내가 생각하는 파트너: {myMood}</span>
+            {partnerMood ? <span style={styles.moodPartnerText}> 파트너: {partnerMood}</span> : null}
+            {moodSaved ? <span style={styles.moodSavedBadge}>저장됨 ✓</span> : null}
+          </div>
+        ) : null}
       </div>
 
       {/* 오늘의 질문 */}
@@ -315,134 +385,36 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* 오늘 현황 */}
+      {/* 오늘 현황 - 한 줄 요약 */}
       <div style={styles.card}>
         <p style={styles.cardLabel}>오늘 현황</p>
-        <div style={styles.statusGrid}>
-          <div style={styles.statusItem}>
-            <span style={styles.statusIcon}>📓</span>
-            <div style={styles.statusInfo}>
-              <span style={styles.statusText}>자기전 일기</span>
-              <span style={styles.statusHint}>기록 탭 → 자기 전 작성</span>
-            </div>
-            <span style={styles.statusBadge}>{todayRecord && todayRecord.night ? '✅' : '⬜'}</span>
+        <div style={styles.statusBar}>
+          <div style={styles.statusChip}>
+            <span style={styles.statusChipIcon}>📓</span>
+            <span style={styles.statusChipLabel}>일기</span>
+            <span style={styles.statusChipVal}>{todayRecord && todayRecord.night ? '✅' : '—'}</span>
           </div>
-          <div style={styles.statusItem}>
-            <span style={styles.statusIcon}>🏃</span>
-            <div style={styles.statusInfo}>
-              <span style={styles.statusText}>운동</span>
-              <span style={styles.statusHint}>건강 탭 → 운동 체크</span>
-            </div>
-            <span style={styles.statusBadge}>{todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '✅' : '⬜'}</span>
+          <div style={styles.statusDivider} />
+          <div style={styles.statusChip}>
+            <span style={styles.statusChipIcon}>🏃</span>
+            <span style={styles.statusChipLabel}>운동</span>
+            <span style={styles.statusChipVal}>{todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '✅' : '—'}</span>
           </div>
-          <div style={styles.statusItem}>
-            <span style={styles.statusIcon}>🍽️</span>
-            <div style={styles.statusInfo}>
-              <span style={styles.statusText}>식단</span>
-              <span style={styles.statusHint}>건강 탭 → 아침 입력</span>
-            </div>
-            <span style={styles.statusBadge}>{todayHealth && todayHealth.meals && todayHealth.meals.morning ? '✅' : '⬜'}</span>
+          <div style={styles.statusDivider} />
+          <div style={styles.statusChip}>
+            <span style={styles.statusChipIcon}>💰</span>
+            <span style={styles.statusChipLabel}>지출</span>
+            <span style={styles.statusChipVal}>
+              {budget && budget.varTotal > 0 ? formatNum(budget.varTotal) + '원' : '—'}
+            </span>
           </div>
-          <div style={styles.statusItem}>
-            <span style={styles.statusIcon}>😊</span>
-            <div style={styles.statusInfo}>
-              <span style={styles.statusText}>컨디션</span>
-              <span style={styles.statusHint}>건강 탭 → 이모지 선택</span>
-            </div>
-            <span style={styles.statusBadge}>{todayHealth && todayHealth.condition && todayHealth.condition.emoji ? todayHealth.condition.emoji : '⬜'}</span>
+          <div style={styles.statusDivider} />
+          <div style={styles.statusChip}>
+            <span style={styles.statusChipIcon}>😊</span>
+            <span style={styles.statusChipLabel}>컨디션</span>
+            <span style={styles.statusChipVal}>{todayHealth && todayHealth.condition && todayHealth.condition.emoji ? todayHealth.condition.emoji : '—'}</span>
           </div>
         </div>
-      </div>
-
-      {/* 투두리스트 */}
-      <div style={styles.card}>
-        <div style={styles.todoHeader}>
-          <p style={styles.cardLabel}>✅ 할 일</p>
-          <div style={styles.todoHeaderBtns}>
-            <button
-              style={showPartnerTodos ? styles.partnerBtnActive : styles.partnerBtn}
-              onClick={function() { setShowPartnerTodos(function(p) { return !p; }); }}
-            >
-              {showPartnerTodos ? '내 할 일' : '파트너 할 일'}
-            </button>
-            <button style={styles.addTodoBtn} onClick={function() { setShowTodoInput(function(p) { return !p; }); }}>+</button>
-          </div>
-        </div>
-
-        {showTodoInput ? (
-          <div style={styles.todoInputBox}>
-            <input
-              style={styles.input}
-              placeholder="할 일 입력"
-              value={newTodo}
-              onChange={function(e) { setNewTodo(e.target.value); }}
-              onKeyDown={function(e) { if (e.key === 'Enter') handleAddTodo(); }}
-            />
-            <input
-              style={styles.input}
-              type="date"
-              value={newTodoDue}
-              onChange={function(e) { setNewTodoDue(e.target.value); }}
-            />
-            <div style={styles.btnRow}>
-              <button style={styles.cancelBtn} onClick={function() { setShowTodoInput(false); }}>취소</button>
-              <button style={styles.saveBtn} onClick={handleAddTodo}>추가</button>
-            </div>
-          </div>
-        ) : null}
-
-        {showPartnerTodos ? (
-          partnerTodos.length === 0 ? (
-            <p style={styles.emptyText}>파트너가 공유한 할 일이 없어요</p>
-          ) : (
-            partnerTodos.map(function(todo) {
-              return (
-                <div key={todo.id} style={styles.todoItem}>
-                  <div style={Object.assign({}, styles.urgencyBar, { background: getUrgencyColor(todo) })} />
-                  <div style={styles.todoContent}>
-                    <p style={Object.assign({}, styles.todoText, todo.isDone ? styles.todoDone : {})}>
-                      {todo.content}
-                    </p>
-                    {todo.dueDate ? <p style={styles.todoDue}>~{todo.dueDate}</p> : null}
-                  </div>
-                  {todo.isDone ? <span style={styles.doneIcon}>✅</span> : null}
-                </div>
-              );
-            })
-          )
-        ) : (
-          todos.length === 0 ? (
-            <p style={styles.emptyText}>할 일을 추가해봐요!</p>
-          ) : (
-            todos.map(function(todo) {
-              return (
-                <div key={todo.id} style={styles.todoItem}>
-                  <div style={Object.assign({}, styles.urgencyBar, { background: getUrgencyColor(todo) })} />
-                  <div style={styles.todoContent}>
-                    <p style={Object.assign({}, styles.todoText, todo.isDone ? styles.todoDone : {})}>
-                      {todo.content}
-                    </p>
-                    {todo.dueDate ? <p style={styles.todoDue}>~{todo.dueDate}</p> : null}
-                  </div>
-                  <div style={styles.todoBtns}>
-                    <button
-                      style={Object.assign({}, styles.shareBtn, todo.isShared ? styles.shareBtnActive : {})}
-                      onClick={function() { handleToggleShare(todo.id, todo.isShared); }}
-                    >
-                      {todo.isShared ? '👁 공유중' : '공유'}
-                    </button>
-                    <button
-                      style={Object.assign({}, styles.doneBtn, todo.isDone ? styles.doneBtnActive : {})}
-                      onClick={function() { handleToggleTodo(todo.id, todo.isDone); }}
-                    >
-                      {todo.isDone ? '↩' : '✓'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })
-          )
-        )}
       </div>
 
       {/* 기록 히스토리 */}
@@ -525,11 +497,69 @@ export default function HomePage() {
 }
 
 const styles = {
-  container: { padding: 24, paddingBottom: 40 },
-  header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0 20px' },
+  container: { padding: 24, paddingBottom: 100 },
+  header: { display: 'flex', alignItems: 'center', gap: 14, padding: '16px 0 20px' },
   greeting: { fontSize: 13, color: '#9E9083', margin: 0 },
-  name: { fontSize: 24, fontWeight: 800, margin: '4px 0 0', color: '#2D2D2D', letterSpacing: -0.5 },
-  avatar: { width: 44, height: 44, borderRadius: 22, border: '2px solid #EDE8E3' },
+  name: { fontSize: 22, fontWeight: 800, margin: '2px 0 0', color: '#2D2D2D', letterSpacing: -0.5 },
+  avatar: { width: 44, height: 44, borderRadius: 22, border: '2px solid #EDE8E3', flexShrink: 0 },
+
+  moodCard: {
+    background: '#FDFAF7', borderRadius: 20, padding: '14px 16px', marginBottom: 14,
+    boxShadow: '0 2px 10px rgba(180,150,130,0.10)',
+  },
+  moodCardTitle: { fontSize: 13, fontWeight: 700, color: '#9E9083', margin: '0 0 10px' },
+  moodRow: { display: 'flex', gap: 8, justifyContent: 'space-between' },
+  moodBtn: {
+    flex: 1, padding: '10px 4px', border: '1.5px solid #EDE8E3',
+    borderRadius: 14, background: '#F5F0EB', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  moodBtnActive: { border: '2px solid #FF6B6B', background: '#FFF0EE' },
+  moodEmoji: { fontSize: 26 },
+  moodResult: { display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' },
+  moodResultText: { fontSize: 13, color: '#5C5049' },
+  moodPartnerText: { fontSize: 13, color: '#9E9083' },
+  moodSavedBadge: {
+    fontSize: 11, color: '#FF6B6B', background: '#FFF0EE',
+    padding: '2px 8px', borderRadius: 10, fontWeight: 600,
+  },
+
+  statusBar: { display: 'flex', alignItems: 'center' },
+  statusChip: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '4px 0' },
+  statusChipIcon: { fontSize: 20 },
+  statusChipLabel: { fontSize: 10, color: '#9E9083', fontWeight: 600 },
+  statusChipVal: { fontSize: 12, fontWeight: 700, color: '#2D2D2D' },
+  statusDivider: { width: 1, height: 40, background: '#EDE8E3', flexShrink: 0 },
+
+  fab: {
+    position: 'fixed', bottom: 80, right: 24, zIndex: 101,
+    width: 56, height: 56, borderRadius: 28,
+    background: '#FF6B6B', border: 'none', cursor: 'pointer',
+    boxShadow: '0 6px 24px rgba(255,107,107,0.45)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  },
+  fabIcon: { fontSize: 28, color: 'white', lineHeight: 1, marginTop: -2 },
+  fabOverlay: {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    background: 'rgba(45,30,20,0.45)', zIndex: 200, display: 'flex', alignItems: 'flex-end',
+  },
+  fabSheet: {
+    background: '#FDFAF7', borderRadius: '24px 24px 0 0',
+    padding: '12px 24px 40px', width: '100%', animation: 'slideUp 0.3s ease',
+  },
+  fabSheetHandle: {
+    width: 40, height: 4, borderRadius: 2, background: '#DDD5CE',
+    margin: '0 auto 16px',
+  },
+  fabSheetTitle: { fontSize: 16, fontWeight: 700, color: '#2D2D2D', margin: '0 0 20px', textAlign: 'center' },
+  fabSheetGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
+  fabSheetItem: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+    padding: '20px 16px', background: '#F5F0EB', borderRadius: 20,
+    border: 'none', cursor: 'pointer',
+  },
+  fabSheetIcon: { fontSize: 32 },
+  fabSheetLabel: { fontSize: 13, fontWeight: 600, color: '#5C5049' },
 
   questionCard: {
     background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',

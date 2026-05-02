@@ -274,7 +274,10 @@ return (
       {showTimeline ? <AffirmationTimeline onClose={function() { setShowTimeline(false); }} /> : null}
       <div style={styles.header}>
         <div style={styles.headerRow}>
-          <h2 style={styles.title}>오늘의 기록 📓</h2>
+          <div>
+            <h2 style={styles.title}>오늘의 기록</h2>
+            <p style={styles.subcopy}>잠시 멈추어, 오늘을 기억합니다</p>
+          </div>
           <button style={styles.toggleBtn} onClick={function() { setViewMode('partner'); }}>파트너 기록</button>
         </div>
         <p style={styles.date}>{formatDate()}</p>
@@ -282,8 +285,11 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'morning' ? null : 'morning'; }); }}>
-          <span style={styles.sectionTitle}>🌅 아침</span>
-          <span>{openSection === 'morning' ? '▲' : '▼'}</span>
+          <div style={styles.sectionIconWrap}>
+            <span style={styles.sectionIconEmoji}>🌅</span>
+          </div>
+          <span style={styles.sectionTitle}>아침</span>
+          <span style={styles.sectionChevron}>{openSection === 'morning' ? '▲' : '▼'}</span>
         </button>
         {openSection === 'morning' ? (
           <div style={styles.sectionBody}>
@@ -343,8 +349,11 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'lunch' ? null : 'lunch'; }); }}>
-          <span style={styles.sectionTitle}>☀️ 점심</span>
-          <span>{openSection === 'lunch' ? '▲' : '▼'}</span>
+          <div style={styles.sectionIconWrap}>
+            <span style={styles.sectionIconEmoji}>☀️</span>
+          </div>
+          <span style={styles.sectionTitle}>점심</span>
+          <span style={styles.sectionChevron}>{openSection === 'lunch' ? '▲' : '▼'}</span>
         </button>
         {openSection === 'lunch' ? (
           <div style={styles.sectionBody}>
@@ -362,8 +371,11 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'evening' ? null : 'evening'; }); }}>
-          <span style={styles.sectionTitle}>🌆 저녁</span>
-          <span>{openSection === 'evening' ? '▲' : '▼'}</span>
+          <div style={styles.sectionIconWrap}>
+            <span style={styles.sectionIconEmoji}>🌆</span>
+          </div>
+          <span style={styles.sectionTitle}>저녁</span>
+          <span style={styles.sectionChevron}>{openSection === 'evening' ? '▲' : '▼'}</span>
         </button>
         {openSection === 'evening' ? (
           <div style={styles.sectionBody}>
@@ -381,8 +393,11 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'night' ? null : 'night'; }); }}>
-          <span style={styles.sectionTitle}>🌙 자기 전</span>
-          <span>{openSection === 'night' ? '▲' : '▼'}</span>
+          <div style={styles.sectionIconWrap}>
+            <span style={styles.sectionIconEmoji}>🌙</span>
+          </div>
+          <span style={styles.sectionTitle}>자기 전</span>
+          <span style={styles.sectionChevron}>{openSection === 'night' ? '▲' : '▼'}</span>
         </button>
         {openSection === 'night' ? (
           <div style={styles.sectionBody}>
@@ -469,6 +484,7 @@ const styles = {
   header: { padding: '20px 0 12px' },
   headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
   title: { fontSize: 32, fontWeight: 800, margin: 0, color: '#2D2D2D', letterSpacing: -0.5 },
+  subcopy: { fontSize: 13, color: '#B0A69D', margin: '2px 0 0', fontWeight: 400 },
   date: { color: '#9E9083', fontSize: 14, marginTop: 6 },
   toggleBtn: {
     padding: '8px 18px', background: '#FF6B6B', color: 'white',
@@ -480,10 +496,17 @@ const styles = {
     boxShadow: '0 2px 8px rgba(180,150,130,0.10)', overflow: 'hidden',
   },
   sectionHeader: {
-    width: '100%', display: 'flex', justifyContent: 'space-between',
+    width: '100%', display: 'flex',
     alignItems: 'center', padding: '18px 20px', border: 'none',
-    background: 'none', cursor: 'pointer',
+    background: 'none', cursor: 'pointer', gap: 12,
   },
+  sectionIconWrap: {
+    width: 40, height: 40, borderRadius: 20,
+    background: '#F5F0EB', display: 'flex',
+    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  sectionIconEmoji: { fontSize: 22 },
+  sectionChevron: { marginLeft: 'auto', fontSize: 12, color: '#9E9083' },
   staticHeader: { padding: '20px 20px 0' },
   sectionTitle: { fontSize: 16, fontWeight: 600, color: '#2D2D2D' },
   sectionBody: { padding: '4px 20px 20px' },

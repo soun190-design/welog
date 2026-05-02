@@ -13,8 +13,8 @@ function getThisMonth() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
 }
 
-const CONDITION_EMOJIS = ['😴', '😔', '😐', '🙂', '😊', '💪'];
-const CONDITION_LABELS = ['매우피곤', '피곤', '보통', '괜찮음', '좋음', '최고'];
+const CONDITION_EMOJIS = ['🤒', '😔', '😐', '😊', '💪'];
+const CONDITION_LABELS = ['아픔', '피곤', '보통', '좋음', '최고'];
 
 export default function HealthPage() {
   const { user } = useAuth();
@@ -171,7 +171,10 @@ export default function HealthPage() {
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerRow}>
-          <h2 style={styles.title}>건강 🏃</h2>
+          <div>
+            <h2 style={styles.title}>건강</h2>
+            <p style={styles.subcopy}>몸과 마음의 리듬</p>
+          </div>
           <button style={styles.toggleBtn} onClick={function() { setViewMode('partner'); }}>파트너 기록</button>
         </div>
         <p style={styles.date}>{new Date().toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' })}</p>
@@ -287,7 +290,7 @@ export default function HealthPage() {
       {tab === 'month' ? (
         <div>
           <div style={styles.card}>
-            <p style={styles.cardLabel}>💪 이번달 운동 기록</p>
+            <p style={styles.cardLabel}>우리의 리듬</p>
             <div style={styles.legendRow}>
               <div style={styles.legendItem}>
                 <div style={Object.assign({}, styles.dot, { background: '#ff7043' })} />
@@ -335,6 +338,33 @@ export default function HealthPage() {
               </div>
             </div>
           </div>
+
+          {(function() {
+            var myCount = Object.values(monthDots).filter(function(d) { return d[user && user.uid]; }).length;
+            var partnerCount = partnerUid ? Object.values(monthDots).filter(function(d) { return d[partnerUid]; }).length : 0;
+            var totalDays = new Date().getDate();
+            var myRate = totalDays > 0 ? Math.round((myCount / totalDays) * 100) : 0;
+            var msg = '';
+            if (myCount === 0 && partnerCount === 0) {
+              msg = '이번 달 아직 운동 기록이 없어요. 오늘부터 함께 시작해볼까요? 💪';
+            } else if (myRate < 30) {
+              msg = '이번 주 두 분 모두 활동량이 평소보다 적네요. 짧은 산책도 좋아요 🌿';
+            } else if (myCount >= partnerCount + 3) {
+              msg = '파트너보다 운동을 열심히 하고 있어요! 함께 도전해보면 어떨까요 🏃';
+            } else if (myRate >= 70) {
+              msg = '이번 달 운동 습관이 정말 훌륭해요! 꾸준함이 빛나고 있어요 ✨';
+            } else {
+              msg = '꾸준히 움직이고 있네요. 서로 응원하며 건강한 한 달 만들어가요 💑';
+            }
+            return (
+              <div style={styles.aiCard}>
+                <div style={styles.aiCardInner}>
+                  <span style={styles.aiIcon}>🤖</span>
+                  <p style={styles.aiText}>{msg}</p>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       ) : null}
     </div>
@@ -433,4 +463,13 @@ const styles = {
     textAlign: 'center', boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
   emptyText: { color: '#9E9083', fontSize: 14 },
+  subcopy: { fontSize: 13, color: '#B0A69D', margin: '2px 0 0', fontWeight: 400 },
+  aiCard: {
+    background: 'linear-gradient(135deg, #FFF8F0 0%, #FFF0EE 100%)',
+    borderRadius: 20, padding: 16, marginBottom: 12,
+    border: '1px solid #FFD9D9',
+  },
+  aiCardInner: { display: 'flex', alignItems: 'flex-start', gap: 10 },
+  aiIcon: { fontSize: 22, flexShrink: 0 },
+  aiText: { fontSize: 14, color: '#5C5049', lineHeight: 1.6, margin: 0 },
 };

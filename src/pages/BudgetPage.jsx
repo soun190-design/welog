@@ -220,7 +220,8 @@ export default function BudgetPage() {
   return (
     <div style={styles.container}>
       <div style={styles.header}>
-        <h2 style={styles.title}>가계부 💰</h2>
+        <h2 style={styles.title}>가계부</h2>
+        <p style={styles.subcopy}>이번 달 우리 함께 쓴 돈을 확인해보세요</p>
         <p style={styles.month}>{thisMonth}</p>
       </div>
 
@@ -249,7 +250,7 @@ export default function BudgetPage() {
         <div>
           {/* 가용현금 히어로 카드 */}
           <div style={styles.heroCard}>
-            <p style={styles.heroLabel}>이번달 가용현금</p>
+            <p style={styles.heroLabel}>이번달 남은 금액</p>
             <p style={Object.assign({}, styles.heroAmount, { color: totals.available >= 0 ? '#2ecc71' : '#e53e3e' })}>
               {totals.available >= 0 ? '+' : ''}{formatNum(totals.available)}원
             </p>
@@ -302,11 +303,18 @@ export default function BudgetPage() {
             <div style={styles.card}>
               <p style={styles.cardLabel}>🧾 최근 지출</p>
               {expenses.slice(-5).reverse().map(function(e, i) {
+                var catIcons = { '식비': '🍽️', '외식': '🍽️', '마트': '🛒', '교통': '🚌', '의료': '💊', '쇼핑': '🛍️', '문화': '🎬', '기타': '📦' };
+                var catColors = { '식비': '#FFE4CC', '외식': '#FFE4CC', '마트': '#E8F5E9', '교통': '#E3F2FD', '의료': '#FCE4EC', '쇼핑': '#F3E5F5', '문화': '#E8EAF6', '기타': '#F5F5F5' };
                 return (
                   <div key={i} style={styles.recentItem}>
-                    <span style={styles.recentCategory}>{e.category}</span>
+                    <div style={Object.assign({}, styles.recentIconWrap, { background: catColors[e.category] || '#F5F0EB' })}>
+                      <span style={styles.recentIcon}>{catIcons[e.category] || '📦'}</span>
+                    </div>
                     <span style={styles.recentTitle}>{e.title}</span>
-                    <span style={styles.recentAmount}>-{formatNum(e.amount)}원</span>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={styles.recentCategory}>{e.category}</span>
+                      <p style={styles.recentAmount}>-{formatNum(e.amount)}원</p>
+                    </div>
                   </div>
                 );
               })}
@@ -567,8 +575,9 @@ export default function BudgetPage() {
 const styles = {
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
-  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
-  month: { color: '#9E9083', fontSize: 14, margin: '4px 0 0' },
+  title: { fontSize: 32, fontWeight: 800, margin: 0, color: '#2D2D2D', letterSpacing: -0.5 },
+  subcopy: { fontSize: 13, color: '#B0A69D', margin: '4px 0 2px', fontWeight: 400 },
+  month: { color: '#9E9083', fontSize: 14, margin: '2px 0 0' },
   tabRow: { display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto' },
   tabBtn: {
     padding: '8px 14px', border: '1px solid #DDD5CE',
@@ -594,7 +603,7 @@ const styles = {
     border: '1px solid #EDE8E3',
   },
   heroLabel: { fontSize: 13, color: '#9E9083', fontWeight: 600, margin: '0 0 6px' },
-  heroAmount: { fontSize: 36, fontWeight: 800, letterSpacing: -1, margin: '0 0 20px' },
+  heroAmount: { fontSize: 36, fontWeight: 800, letterSpacing: -1.5, margin: '0 0 20px' },
   heroStats: { display: 'flex', alignItems: 'center' },
   heroStatItem: { flex: 1, textAlign: 'center' },
   heroStatLabel: { display: 'block', fontSize: 11, color: '#9E9083', marginBottom: 4 },
@@ -612,15 +621,20 @@ const styles = {
   summaryValueBold: { fontSize: 20, fontWeight: 800 },
   divider: { height: 1, background: '#EDE8E3', margin: '8px 0 16px' },
   recentItem: {
-    display: 'flex', alignItems: 'center', gap: 8,
-    padding: '9px 0', borderBottom: '1px solid #EDE8E3',
+    display: 'flex', alignItems: 'center', gap: 10,
+    padding: '10px 0', borderBottom: '1px solid #EDE8E3',
   },
+  recentIconWrap: {
+    width: 38, height: 38, borderRadius: 19,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  recentIcon: { fontSize: 18 },
   recentCategory: {
-    fontSize: 11, color: '#FF6B6B', background: '#FFF0EE',
-    padding: '2px 8px', borderRadius: 10, fontWeight: 600, flexShrink: 0,
+    fontSize: 10, color: '#FF6B6B',
+    fontWeight: 600, display: 'block',
   },
   recentTitle: { flex: 1, fontSize: 14, color: '#2D2D2D' },
-  recentAmount: { fontSize: 14, fontWeight: 700, color: '#e07070' },
+  recentAmount: { fontSize: 14, fontWeight: 700, color: '#e07070', margin: 0 },
   progressBar: {
     height: 12, background: '#EDE8E3', borderRadius: 6,
     overflow: 'hidden', margin: '8px 0',

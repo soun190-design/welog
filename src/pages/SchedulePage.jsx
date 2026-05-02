@@ -163,7 +163,10 @@ setNewTitle(''); setNewDate(''); setNewTime('');
     <div style={styles.container}>
       <div style={styles.header}>
         <div style={styles.headerRow}>
-          <h2 style={styles.title}>일정 📅</h2>
+          <div>
+            <h2 style={styles.title}>우리만의 시간</h2>
+            <p style={styles.subcopy}>이번 달 특별한 순간들</p>
+          </div>
           <div style={styles.headerBtns}>
             <button style={styles.catBtn} onClick={function() { setShowCategoryAdd(true); }}>🏷️</button>
             <button style={styles.addBtn} onClick={function() { setShowAdd(true); }}>+ 추가</button>
@@ -272,9 +275,12 @@ setNewTitle(''); setNewDate(''); setNewTime('');
           ) : (
             selectedSchedules.map(function(s) {
               var cat = getCategoryById(s.categoryId);
+              var catColor = cat ? cat.color : '#FF6B6B';
               return (
                 <div key={s.id} style={Object.assign({}, styles.scheduleItem, s.isRecurring ? styles.scheduleRecurring : {})}>
-                  <div style={Object.assign({}, styles.scheduleColor, { background: cat ? cat.color : '#ff7043' })} />
+                  <div style={Object.assign({}, styles.scheduleIconWrap, { background: catColor + '22' })}>
+                    <div style={Object.assign({}, styles.scheduleColorDot, { background: catColor })} />
+                  </div>
                   <div style={styles.scheduleInfo}>
                     <p style={styles.scheduleTitle}>{s.title}</p>
                     {s.datetime && s.datetime.includes('T') ? (
@@ -296,15 +302,18 @@ setNewTitle(''); setNewDate(''); setNewTime('');
 
       {/* 다가오는 일정 */}
       <div style={styles.card}>
-        <p style={styles.cardLabel}>📋 다가오는 일정</p>
+        <p style={styles.cardLabel}>다가오는 순간들</p>
         {schedules.filter(function(s) { return s.datetime >= todayStr && !s.isRecurring; }).slice(0, 5).length === 0 ? (
-          <p style={styles.emptyText}>다가오는 일정이 없어요</p>
+          <p style={styles.emptyText}>아직 예정된 순간이 없어요 🌸</p>
         ) : (
           schedules.filter(function(s) { return s.datetime >= todayStr && !s.isRecurring; }).slice(0, 5).map(function(s) {
             var cat = getCategoryById(s.categoryId);
+            var catColor = cat ? cat.color : '#FF6B6B';
             return (
               <div key={s.id} style={styles.upcomingItem}>
-                <div style={Object.assign({}, styles.scheduleColor, { background: cat ? cat.color : '#ff7043' })} />
+                <div style={Object.assign({}, styles.scheduleIconWrap, { background: catColor + '22' })}>
+                  <div style={Object.assign({}, styles.scheduleColorDot, { background: catColor })} />
+                </div>
                 <div style={styles.scheduleInfo}>
                   <p style={styles.scheduleTitle}>{s.title}</p>
                   <p style={styles.scheduleTime}>{s.datetime.substring(0, 10)}</p>
@@ -435,8 +444,9 @@ const styles = {
   container: { padding: 20, paddingBottom: 40 },
   header: { padding: '20px 0 12px' },
   headerRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  title: { fontSize: 22, fontWeight: 700, margin: 0, color: '#2D2D2D' },
-  headerBtns: { display: 'flex', gap: 8 },
+  title: { fontSize: 32, fontWeight: 800, margin: 0, color: '#2D2D2D', letterSpacing: -0.5 },
+  subcopy: { fontSize: 13, color: '#B0A69D', margin: '2px 0 0', fontWeight: 400 },
+  headerBtns: { display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 4 },
   catBtn: {
     padding: '8px 12px', background: '#FDFAF7', border: '1px solid #DDD5CE',
     borderRadius: 20, fontSize: 14, cursor: 'pointer',
@@ -486,6 +496,11 @@ const styles = {
     padding: '10px 0', borderBottom: '1px solid #EDE8E3',
   },
   scheduleRecurring: { opacity: 0.7 },
+  scheduleIconWrap: {
+    width: 36, height: 36, borderRadius: 18,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  scheduleColorDot: { width: 10, height: 10, borderRadius: 5 },
   scheduleColor: { width: 4, height: '100%', minHeight: 20, borderRadius: 2, flexShrink: 0, marginTop: 2 },
   scheduleInfo: { flex: 1 },
   scheduleTitle: { fontSize: 14, fontWeight: 600, margin: 0, lineHeight: 1.4, color: '#2D2D2D' },
