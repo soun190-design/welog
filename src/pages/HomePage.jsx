@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { BookHeart, Dumbbell, Receipt, Smile, PenLine, BadgeDollarSign, CheckSquare, HeartHandshake } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -190,14 +191,16 @@ export default function HomePage() {
             <p style={styles.fabSheetTitle}>빠른 입력</p>
             <div style={styles.fabSheetGrid}>
               {[
-                { icon: '📓', label: '기록 작성' },
-                { icon: '💸', label: '지출 추가' },
-                { icon: '✅', label: '할 일 추가' },
-                { icon: '😊', label: '감정 선택' },
+                { icon: <PenLine size={28} color="#3949AB" strokeWidth={1.5} />, label: '기록 작성', bg: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)' },
+                { icon: <BadgeDollarSign size={28} color="#558B2F" strokeWidth={1.5} />, label: '지출 추가', bg: 'linear-gradient(135deg, #DCEDC8, #AED581)' },
+                { icon: <CheckSquare size={28} color="#FF6B6B" strokeWidth={1.5} />, label: '할 일 추가', bg: 'linear-gradient(135deg, #FFE0B2, #FFCC80)' },
+                { icon: <HeartHandshake size={28} color="#C2185B" strokeWidth={1.5} />, label: '감정 선택', bg: 'linear-gradient(135deg, #F8BBD0, #F48FB1)' },
               ].map(function(item) {
                 return (
                   <button key={item.label} style={styles.fabSheetItem} onClick={function() { setShowFab(false); }}>
-                    <span style={styles.fabSheetIcon}>{item.icon}</span>
+                    <div style={Object.assign({}, styles.fabSheetIconWrap, { background: item.bg })}>
+                      {item.icon}
+                    </div>
                     <span style={styles.fabSheetLabel}>{item.label}</span>
                   </button>
                 );
@@ -292,29 +295,43 @@ export default function HomePage() {
         <p style={styles.cardLabel}>오늘 현황</p>
         <div style={styles.statusBar}>
           <div style={styles.statusChip}>
-            <span style={styles.statusChipIcon}>📓</span>
+            <div style={Object.assign({}, styles.statusChipIconWrap, { background: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)' })}>
+              <BookHeart size={16} color="#3949AB" strokeWidth={1.5} />
+            </div>
             <span style={styles.statusChipLabel}>일기</span>
-            <span style={styles.statusChipVal}>{todayRecord && todayRecord.night ? '✅' : '—'}</span>
+            <span style={Object.assign({}, styles.statusChipVal, { color: todayRecord && todayRecord.night ? '#FF6B6B' : '#C4BAB1' })}>
+              {todayRecord && todayRecord.night ? '완료' : '—'}
+            </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusChip}>
-            <span style={styles.statusChipIcon}>🏃</span>
+            <div style={Object.assign({}, styles.statusChipIconWrap, { background: 'linear-gradient(135deg, #B3E5FC, #81D4FA)' })}>
+              <Dumbbell size={16} color="#0277BD" strokeWidth={1.5} />
+            </div>
             <span style={styles.statusChipLabel}>운동</span>
-            <span style={styles.statusChipVal}>{todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '✅' : '—'}</span>
+            <span style={Object.assign({}, styles.statusChipVal, { color: todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '#FF6B6B' : '#C4BAB1' })}>
+              {todayHealth && todayHealth.exercise && todayHealth.exercise.done ? '완료' : '—'}
+            </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusChip}>
-            <span style={styles.statusChipIcon}>💰</span>
+            <div style={Object.assign({}, styles.statusChipIconWrap, { background: 'linear-gradient(135deg, #DCEDC8, #AED581)' })}>
+              <Receipt size={16} color="#558B2F" strokeWidth={1.5} />
+            </div>
             <span style={styles.statusChipLabel}>지출</span>
-            <span style={styles.statusChipVal}>
+            <span style={Object.assign({}, styles.statusChipVal, { color: budget && budget.varTotal > 0 ? '#2D2D2D' : '#C4BAB1', fontSize: 10 })}>
               {budget && budget.varTotal > 0 ? formatNum(budget.varTotal) + '원' : '—'}
             </span>
           </div>
           <div style={styles.statusDivider} />
           <div style={styles.statusChip}>
-            <span style={styles.statusChipIcon}>😊</span>
+            <div style={Object.assign({}, styles.statusChipIconWrap, { background: 'linear-gradient(135deg, #FFCDD2, #EF9A9A)' })}>
+              <Smile size={16} color="#C62828" strokeWidth={1.5} />
+            </div>
             <span style={styles.statusChipLabel}>컨디션</span>
-            <span style={styles.statusChipVal}>{todayHealth && todayHealth.condition && todayHealth.condition.emoji ? todayHealth.condition.emoji : '—'}</span>
+            <span style={styles.statusChipVal}>
+              {todayHealth && todayHealth.condition && todayHealth.condition.emoji ? todayHealth.condition.emoji : '—'}
+            </span>
           </div>
         </div>
       </div>
@@ -427,11 +444,15 @@ const styles = {
   },
 
   statusBar: { display: 'flex', alignItems: 'center' },
-  statusChip: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '4px 0' },
-  statusChipIcon: { fontSize: 20 },
+  statusChip: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '4px 0' },
+  statusChipIconWrap: {
+    width: 34, height: 34, borderRadius: 17,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+  },
   statusChipLabel: { fontSize: 10, color: '#9E9083', fontWeight: 600 },
-  statusChipVal: { fontSize: 12, fontWeight: 700, color: '#2D2D2D' },
-  statusDivider: { width: 1, height: 40, background: '#EDE8E3', flexShrink: 0 },
+  statusChipVal: { fontSize: 11, fontWeight: 700, color: '#2D2D2D' },
+  statusDivider: { width: 1, height: 44, background: '#EDE8E3', flexShrink: 0 },
 
   fab: {
     position: 'fixed', bottom: 80, right: 24, zIndex: 101,
@@ -460,7 +481,11 @@ const styles = {
     padding: '20px 16px', background: '#F5F0EB', borderRadius: 20,
     border: 'none', cursor: 'pointer',
   },
-  fabSheetIcon: { fontSize: 32 },
+  fabSheetIconWrap: {
+    width: 56, height: 56, borderRadius: 28,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.10)',
+  },
   fabSheetLabel: { fontSize: 13, fontWeight: 600, color: '#5C5049' },
 
   questionCard: {

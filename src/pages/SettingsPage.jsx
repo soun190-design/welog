@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Activity, BellOff, Wallet, Calendar, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { signOutUser } from '../firebase/auth';
@@ -97,14 +98,17 @@ export default function SettingsPage({ onNotificationRead }) {
           <div style={styles.card}>
             <p style={styles.cardSectionLabel}>알림 설정</p>
             {[
-              { label: '다정한 알림 받기', desc: '사소한 일상도 알림으로 받아요', val: notiDajeong, setter: setNotiDajeong, icon: '💌' },
-              { label: '건강 기록 알림', desc: '파트너 컨디션 업데이트 시 알림', val: notiHealth, setter: setNotiHealth, icon: '🏃' },
-              { label: '야간 알림 제한', desc: '오후 10시~오전 7시 음소거', val: notiNight, setter: setNotiNight, icon: '🌙' },
+              { label: '다정한 알림 받기', desc: '사소한 일상도 알림으로 받아요', val: notiDajeong, setter: setNotiDajeong,
+                icon: <Bell size={18} color="#C2185B" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #F8BBD0, #F48FB1)' },
+              { label: '건강 기록 알림', desc: '파트너 컨디션 업데이트 시 알림', val: notiHealth, setter: setNotiHealth,
+                icon: <Activity size={18} color="#0277BD" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #B3E5FC, #81D4FA)' },
+              { label: '야간 알림 제한', desc: '오후 10시~오전 7시 음소거', val: notiNight, setter: setNotiNight,
+                icon: <BellOff size={18} color="#3949AB" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)' },
             ].map(function(item) {
               return (
                 <div key={item.label} style={styles.toggleRow}>
-                  <div style={styles.toggleIconWrap}>
-                    <span style={{ fontSize: 18 }}>{item.icon}</span>
+                  <div style={Object.assign({}, styles.toggleIconWrap, { background: item.bg })}>
+                    {item.icon}
                   </div>
                   <div style={styles.toggleInfo}>
                     <p style={styles.toggleLabel}>{item.label}</p>
@@ -138,7 +142,10 @@ export default function SettingsPage({ onNotificationRead }) {
                 schedule: { bg: '#EEF7F0', color: '#5A8A6A', label: '일정' },
               };
               var notiStyle = notiColors[noti.type] || { bg: '#F0F0F5', color: '#9E9083', label: '알림' };
-              var notiIcons = { budget: '💰', schedule: '📅' };
+              var notiIconMap = {
+                budget: <Wallet size={18} color="#E65100" strokeWidth={1.5} />,
+                schedule: <Calendar size={18} color="#2E7D32" strokeWidth={1.5} />,
+              };
               return (
                 <div
                   key={noti.id}
@@ -146,9 +153,7 @@ export default function SettingsPage({ onNotificationRead }) {
                   onClick={function() { handleMarkRead(noti.id); }}
                 >
                   <div style={Object.assign({}, styles.notiIconWrap, { background: notiStyle.bg })}>
-                    <span style={{ fontSize: 18 }}>
-                      {notiIcons[noti.type] || '🔔'}
-                    </span>
+                    {notiIconMap[noti.type] || <Bell size={18} color="#9E9083" strokeWidth={1.5} />}
                   </div>
                   <div style={styles.notiLeft}>
                     <span style={Object.assign({}, styles.notiType, { color: notiStyle.color })}>

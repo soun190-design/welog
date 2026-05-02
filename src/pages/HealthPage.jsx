@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Heart, UtensilsCrossed, Dumbbell, TrendingUp } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -189,7 +190,12 @@ export default function HealthPage() {
         <div>
           {/* 컨디션 */}
           <div style={styles.card}>
-            <p style={styles.cardLabel}>😊 오늘의 컨디션</p>
+            <div style={styles.cardLabelRow}>
+              <div style={Object.assign({}, styles.cardIconWrap, { background: 'linear-gradient(135deg, #FFCDD2, #EF9A9A)' })}>
+                <Heart size={18} color="#C62828" strokeWidth={1.5} />
+              </div>
+              <p style={styles.cardLabel}>오늘의 컨디션</p>
+            </div>
             <div style={styles.emojiRow}>
               {CONDITION_EMOJIS.map(function(emoji, i) {
                 return (
@@ -214,7 +220,12 @@ export default function HealthPage() {
 
           {/* 식단 */}
           <div style={styles.card}>
-            <p style={styles.cardLabel}>🍽️ 오늘의 식단</p>
+            <div style={styles.cardLabelRow}>
+              <div style={Object.assign({}, styles.cardIconWrap, { background: 'linear-gradient(135deg, #DCEDC8, #AED581)' })}>
+                <UtensilsCrossed size={18} color="#558B2F" strokeWidth={1.5} />
+              </div>
+              <p style={styles.cardLabel}>오늘의 식단</p>
+            </div>
             {[
               { key: 'morning', label: '🌅 아침', placeholder: '아침 메뉴를 입력해요' },
               { key: 'lunch', label: '☀️ 점심', placeholder: '점심 메뉴를 입력해요' },
@@ -239,7 +250,12 @@ export default function HealthPage() {
 
           {/* 운동 */}
           <div style={styles.card}>
-            <p style={styles.cardLabel}>💪 운동</p>
+            <div style={styles.cardLabelRow}>
+              <div style={Object.assign({}, styles.cardIconWrap, { background: 'linear-gradient(135deg, #B3E5FC, #81D4FA)' })}>
+                <Dumbbell size={18} color="#0277BD" strokeWidth={1.5} />
+              </div>
+              <p style={styles.cardLabel}>운동</p>
+            </div>
             <div style={styles.exerciseRow}>
               <button
                 style={Object.assign({}, styles.exerciseBtn, exercise.done ? styles.exerciseBtnActive : {})}
@@ -290,7 +306,12 @@ export default function HealthPage() {
       {tab === 'month' ? (
         <div>
           <div style={styles.card}>
-            <p style={styles.cardLabel}>우리의 리듬</p>
+            <div style={styles.cardLabelRow}>
+              <div style={Object.assign({}, styles.cardIconWrap, { background: 'linear-gradient(135deg, #E1BEE7, #CE93D8)' })}>
+                <TrendingUp size={18} color="#6A1B9A" strokeWidth={1.5} />
+              </div>
+              <p style={styles.cardLabel}>우리의 리듬</p>
+            </div>
             <div style={styles.legendRow}>
               <div style={styles.legendItem}>
                 <div style={Object.assign({}, styles.dot, { background: '#ff7043' })} />
@@ -322,7 +343,7 @@ export default function HealthPage() {
           </div>
 
           <div style={styles.card}>
-            <p style={styles.cardLabel}>📊 이번달 통계</p>
+            <p style={styles.cardLabel}>이번달 통계</p>
             <div style={styles.statsRow}>
               <div style={styles.statItem}>
                 <p style={styles.statNum}>
@@ -394,7 +415,13 @@ const styles = {
     background: '#FDFAF7', borderRadius: 16, padding: 16,
     marginBottom: 12, boxShadow: '0 2px 8px rgba(180,150,130,0.10)',
   },
-  cardLabel: { fontSize: 13, fontWeight: 600, color: '#9E9083', margin: '0 0 12px' },
+  cardLabelRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 },
+  cardIconWrap: {
+    width: 36, height: 36, borderRadius: 18,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+  },
+  cardLabel: { fontSize: 14, fontWeight: 700, color: '#2D2D2D', margin: 0 },
   emojiRow: { display: 'flex', gap: 6, marginBottom: 12, justifyContent: 'space-between' },
   emojiBtn: {
     flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center',

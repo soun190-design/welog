@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Utensils, ShoppingBag, Bus, Pill, Film, Package, ShoppingCart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import {
@@ -303,12 +304,21 @@ export default function BudgetPage() {
             <div style={styles.card}>
               <p style={styles.cardLabel}>🧾 최근 지출</p>
               {expenses.slice(-5).reverse().map(function(e, i) {
-                var catIcons = { '식비': '🍽️', '외식': '🍽️', '마트': '🛒', '교통': '🚌', '의료': '💊', '쇼핑': '🛍️', '문화': '🎬', '기타': '📦' };
-                var catColors = { '식비': '#FFE4CC', '외식': '#FFE4CC', '마트': '#E8F5E9', '교통': '#E3F2FD', '의료': '#FCE4EC', '쇼핑': '#F3E5F5', '문화': '#E8EAF6', '기타': '#F5F5F5' };
+                var catConfig = {
+                  '식비':  { icon: <Utensils size={18} color="#E65100" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #FFE0B2, #FFCC80)' },
+                  '외식':  { icon: <Utensils size={18} color="#E65100" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #FFE0B2, #FFCC80)' },
+                  '마트':  { icon: <ShoppingCart size={18} color="#2E7D32" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #DCEDC8, #AED581)' },
+                  '교통':  { icon: <Bus size={18} color="#0277BD" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #B3E5FC, #81D4FA)' },
+                  '의료':  { icon: <Pill size={18} color="#C62828" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #FFCDD2, #EF9A9A)' },
+                  '쇼핑':  { icon: <ShoppingBag size={18} color="#6A1B9A" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #E1BEE7, #CE93D8)' },
+                  '문화':  { icon: <Film size={18} color="#283593" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)' },
+                  '기타':  { icon: <Package size={18} color="#4E342E" strokeWidth={1.5} />, bg: 'linear-gradient(135deg, #D7CCC8, #BCAAA4)' },
+                };
+                var cfg = catConfig[e.category] || catConfig['기타'];
                 return (
                   <div key={i} style={styles.recentItem}>
-                    <div style={Object.assign({}, styles.recentIconWrap, { background: catColors[e.category] || '#F5F0EB' })}>
-                      <span style={styles.recentIcon}>{catIcons[e.category] || '📦'}</span>
+                    <div style={Object.assign({}, styles.recentIconWrap, { background: cfg.bg })}>
+                      {cfg.icon}
                     </div>
                     <span style={styles.recentTitle}>{e.title}</span>
                     <div style={{ textAlign: 'right' }}>

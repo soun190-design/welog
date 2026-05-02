@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Sunrise, Sun, Sunset, Moon } from 'lucide-react';
 import HealthPage from './HealthPage';
 import AffirmationTimeline from '../components/AffirmationTimeline';
 import { useAuth } from '../contexts/AuthContext';
@@ -285,8 +286,8 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'morning' ? null : 'morning'; }); }}>
-          <div style={styles.sectionIconWrap}>
-            <span style={styles.sectionIconEmoji}>🌅</span>
+          <div style={Object.assign({}, styles.sectionIconWrap, { background: 'linear-gradient(135deg, #FFF9C4, #FFE082)' })}>
+            <Sunrise size={22} color="#F9A825" strokeWidth={1.5} />
           </div>
           <span style={styles.sectionTitle}>아침</span>
           <span style={styles.sectionChevron}>{openSection === 'morning' ? '▲' : '▼'}</span>
@@ -349,8 +350,8 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'lunch' ? null : 'lunch'; }); }}>
-          <div style={styles.sectionIconWrap}>
-            <span style={styles.sectionIconEmoji}>☀️</span>
+          <div style={Object.assign({}, styles.sectionIconWrap, { background: 'linear-gradient(135deg, #FFE0B2, #FFCC80)' })}>
+            <Sun size={22} color="#FB8C00" strokeWidth={1.5} />
           </div>
           <span style={styles.sectionTitle}>점심</span>
           <span style={styles.sectionChevron}>{openSection === 'lunch' ? '▲' : '▼'}</span>
@@ -371,8 +372,8 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'evening' ? null : 'evening'; }); }}>
-          <div style={styles.sectionIconWrap}>
-            <span style={styles.sectionIconEmoji}>🌆</span>
+          <div style={Object.assign({}, styles.sectionIconWrap, { background: 'linear-gradient(135deg, #F8BBD0, #F48FB1)' })}>
+            <Sunset size={22} color="#C2185B" strokeWidth={1.5} />
           </div>
           <span style={styles.sectionTitle}>저녁</span>
           <span style={styles.sectionChevron}>{openSection === 'evening' ? '▲' : '▼'}</span>
@@ -393,8 +394,8 @@ return (
 
       <div style={styles.card}>
         <button style={styles.sectionHeader} onClick={function() { setOpenSection(function(p) { return p === 'night' ? null : 'night'; }); }}>
-          <div style={styles.sectionIconWrap}>
-            <span style={styles.sectionIconEmoji}>🌙</span>
+          <div style={Object.assign({}, styles.sectionIconWrap, { background: 'linear-gradient(135deg, #C5CAE9, #9FA8DA)' })}>
+            <Moon size={22} color="#3949AB" strokeWidth={1.5} />
           </div>
           <span style={styles.sectionTitle}>자기 전</span>
           <span style={styles.sectionChevron}>{openSection === 'night' ? '▲' : '▼'}</span>
@@ -501,11 +502,10 @@ const styles = {
     background: 'none', cursor: 'pointer', gap: 12,
   },
   sectionIconWrap: {
-    width: 40, height: 40, borderRadius: 20,
-    background: '#F5F0EB', display: 'flex',
-    alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    width: 44, height: 44, borderRadius: 22,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
   },
-  sectionIconEmoji: { fontSize: 22 },
   sectionChevron: { marginLeft: 'auto', fontSize: 12, color: '#9E9083' },
   staticHeader: { padding: '20px 20px 0' },
   sectionTitle: { fontSize: 16, fontWeight: 600, color: '#2D2D2D' },

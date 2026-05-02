@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { Clapperboard, BookOpen, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import {
@@ -337,7 +338,11 @@ export default function ContentPage() {
                     {content.thumbnail ? (
                       <img src={content.thumbnail} alt={content.title} style={styles.gridThumb} />
                     ) : (
-                      <div style={styles.gridNoThumb}>{content.type === 'movie' ? '🎬' : '📖'}</div>
+                      <div style={styles.gridNoThumb}>
+                    {content.type === 'movie'
+                      ? <Clapperboard size={36} color="#B0A69D" strokeWidth={1.2} />
+                      : <BookOpen size={36} color="#B0A69D" strokeWidth={1.2} />}
+                  </div>
                     )}
                     <span style={content.type === 'movie' ? styles.typeBadgeMovie : styles.typeBadgeBook}>
                       {content.type === 'movie' ? 'MOVIE' : 'BOOK'}
@@ -413,7 +418,7 @@ export default function ContentPage() {
               );
             })}
             <button style={styles.gridAddCard} onClick={function() { setShowSearch(true); }}>
-              <span style={styles.gridAddIcon}>+</span>
+              <div style={styles.gridAddIcon}><Plus size={36} strokeWidth={1.5} color="#C4BAB1" /></div>
               <span style={styles.gridAddText}>추가하기</span>
             </button>
           </div>
@@ -484,7 +489,7 @@ const styles = {
     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     height: 220, cursor: 'pointer', gap: 8,
   },
-  gridAddIcon: { fontSize: 32, color: '#C4BAB1' },
+  gridAddIcon: { color: '#C4BAB1' },
   gridAddText: { fontSize: 13, color: '#B0A69D', fontWeight: 600 },
   typeBadgeMovie: {
     position: 'absolute', top: 8, left: 8,
