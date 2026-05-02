@@ -33,6 +33,8 @@ export default function HealthPage() {
   const [partnerRecord, setPartnerRecord] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [aiComment, setAiComment] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   var loadMyRecord = useCallback(async function() {
     if (!user || !couple) return;
@@ -82,6 +84,24 @@ export default function HealthPage() {
     loadPartnerRecord();
     loadMonthDots();
   }, [loadMyRecord, loadPartnerRecord, loadMonthDots]);
+
+  useEffect(function() {
+    if (tab !== 'month') return;
+    var myCount = Object.values(monthDots).filter(function(d) { return d[user && user.uid]; }).length;
+    var partnerCount = partnerUid ? Object.values(monthDots).filter(function(d) { return d[partnerUid]; }).length : 0;
+    var totalDays = new Date().getDate();
+    setAiLoading(true);
+    setAiComment('');
+    fetch('/api/ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ myCount: myCount, partnerCount: partnerCount, totalDays: totalDays }),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) { setAiComment(data.message || '오늘도 함께 건강하게 지내요 💑'); })
+      .catch(function() { setAiComment('오늘도 함께 건강하게 지내요 💑'); })
+      .finally(function() { setAiLoading(false); });
+  }, [tab, monthDots, user, partnerUid]); // eslint-disable-line react-hooks/exhaustive-deps
 
   var saveRecord = async function(updates) {
     if (!user || !couple) return;
@@ -360,32 +380,16 @@ export default function HealthPage() {
             </div>
           </div>
 
-          {(function() {
-            var myCount = Object.values(monthDots).filter(function(d) { return d[user && user.uid]; }).length;
-            var partnerCount = partnerUid ? Object.values(monthDots).filter(function(d) { return d[partnerUid]; }).length : 0;
-            var totalDays = new Date().getDate();
-            var myRate = totalDays > 0 ? Math.round((myCount / totalDays) * 100) : 0;
-            var msg = '';
-            if (myCount === 0 && partnerCount === 0) {
-              msg = '이번 달 아직 운동 기록이 없어요. 오늘부터 함께 시작해볼까요? 💪';
-            } else if (myRate < 30) {
-              msg = '이번 주 두 분 모두 활동량이 평소보다 적네요. 짧은 산책도 좋아요 🌿';
-            } else if (myCount >= partnerCount + 3) {
-              msg = '파트너보다 운동을 열심히 하고 있어요! 함께 도전해보면 어떨까요 🏃';
-            } else if (myRate >= 70) {
-              msg = '이번 달 운동 습관이 정말 훌륭해요! 꾸준함이 빛나고 있어요 ✨';
-            } else {
-              msg = '꾸준히 움직이고 있네요. 서로 응원하며 건강한 한 달 만들어가요 💑';
-            }
-            return (
-              <div style={styles.aiCard}>
-                <div style={styles.aiCardInner}>
-                  <span style={styles.aiIcon}>🤖</span>
-                  <p style={styles.aiText}>{msg}</p>
-                </div>
-              </div>
-            );
-          })()}
+          <div style={styles.aiCard}>
+            <div style={styles.aiCardInner}>
+              <span style={styles.aiIcon}>🤖</span>
+              {aiLoading ? (
+                <p style={styles.aiText}>AI가 분석 중이에요...</p>
+              ) : (
+                <p style={styles.aiText}>{aiComment || '이번 달 탭을 열면 AI 분석이 시작돼요'}</p>
+              )}
+            </div>
+          </div>
         </div>
       ) : null}
     </div>

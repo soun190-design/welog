@@ -9,8 +9,6 @@ import {
 } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
-const TMDB_KEY = '932ddc5c9f9c6bc3d417360ff11f80b0';
-
 export default function ContentPage() {
   const { user } = useAuth();
   const { couple } = useCouple();
@@ -53,19 +51,19 @@ export default function ContentPage() {
     setSearchResults([]);
     try {
       if (searchType === 'movie') {
-        var movieRes = await fetch(
-          'https://api.themoviedb.org/3/search/movie?api_key=' + TMDB_KEY + '&language=ko-KR&query=' + encodeURIComponent(searchQuery)
-        );
+        var movieRes = await fetch('/api/movies?query=' + encodeURIComponent(searchQuery));
         var movieData = await movieRes.json();
-        var movieResults = (movieData.results || []).slice(0, 5).map(function(m) {
+        var stripTagsMov = function(str) { return str ? str.replace(/<[^>]*>/g, '') : ''; };
+        var movieResults = (movieData.items || []).map(function(m) {
+          var dir = stripTagsMov(m.director || '').replace(/\|\s*$/, '').replace(/\|/g, ', ');
           return {
             type: 'movie',
-            title: m.title,
-            thumbnail: m.poster_path ? ('https://image.tmdb.org/t/p/w200' + m.poster_path) : null,
-            director: '',
-            description: m.overview,
-            year: m.release_date ? m.release_date.substring(0, 4) : '',
-            apiId: String(m.id),
+            title: stripTagsMov(m.title),
+            thumbnail: m.image || null,
+            director: dir,
+            description: '',
+            year: m.pubDate || '',
+            apiId: m.link || '',
           };
         });
         setSearchResults(movieResults);

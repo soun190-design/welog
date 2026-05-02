@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { BookHeart, Dumbbell, Receipt, Smile, PenLine, BadgeDollarSign, CheckSquare, HeartHandshake } from 'lucide-react';
+import { BookHeart, Dumbbell, Receipt, Smile, PenLine, BadgeDollarSign, CheckSquare, HeartHandshake, Sun, Cloud, CloudRain, CloudSnow, CloudLightning, Wind } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -50,6 +50,9 @@ export default function HomePage() {
   const [myMood, setMyMood] = useState('');
   const [partnerMood] = useState('');
   const [moodSaved, setMoodSaved] = useState(false);
+
+  // 날씨
+  const [weather, setWeather] = useState(null);
 
   // FAB
   const [showFab, setShowFab] = useState(false);
@@ -175,6 +178,35 @@ export default function HomePage() {
     return '좋은 저녁이에요 🌙';
   };
 
+  useEffect(function() {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(function(pos) {
+      fetch('/api/weather?lat=' + pos.coords.latitude + '&lon=' + pos.coords.longitude)
+        .then(function(r) { return r.json(); })
+        .then(function(data) { if (data.main) setWeather(data); })
+        .catch(console.error);
+    });
+  }, []);
+
+  var getWeatherIcon = function(id) {
+    var size = 22; var sw = 1.5;
+    if (id >= 200 && id < 300) return <CloudLightning size={size} color="#5C7FA3" strokeWidth={sw} />;
+    if (id >= 300 && id < 600) return <CloudRain size={size} color="#5C7FA3" strokeWidth={sw} />;
+    if (id >= 600 && id < 700) return <CloudSnow size={size} color="#5C7FA3" strokeWidth={sw} />;
+    if (id >= 700 && id < 800) return <Wind size={size} color="#5C7FA3" strokeWidth={sw} />;
+    if (id === 800) return <Sun size={size} color="#F9A825" strokeWidth={sw} />;
+    return <Cloud size={size} color="#5C7FA3" strokeWidth={sw} />;
+  };
+
+  var getWeatherSuggestion = function(id, temp) {
+    if (id >= 200 && id < 300) return '오늘은 집에서 함께 영화 보는 날이에요 ⚡';
+    if (id >= 300 && id < 600) return '비오는 날엔 카페 데이트가 최고예요 ☕';
+    if (id >= 600 && id < 700) return '눈 구경하며 따뜻한 핫초코 한 잔 어때요? ❄️';
+    if (temp < 5) return '추운 날엔 따뜻한 실내 데이트를 추천해요 🧥';
+    if (id === 800 && temp >= 15) return '날씨 좋은 날, 드라이브나 소풍 어때요? ☀️';
+    return '오늘도 함께라면 어디든 좋아요 💑';
+  };
+
   var handleMoodSelect = function(emoji) {
     setMyMood(emoji);
     setMoodSaved(true);
@@ -223,6 +255,22 @@ export default function HomePage() {
           <h2 style={styles.name}>{user && user.displayName && user.displayName.split(' ')[0]} 💑</h2>
         </div>
       </div>
+
+      {/* 날씨 카드 */}
+      {weather ? (
+        <div style={styles.weatherCard}>
+          <div style={styles.weatherMain}>
+            <div style={styles.weatherIconWrap}>
+              {getWeatherIcon(weather.weather[0].id)}
+            </div>
+            <div>
+              <p style={styles.weatherTemp}>{Math.round(weather.main.temp)}°C</p>
+              <p style={styles.weatherDesc}>{weather.weather[0].description}</p>
+            </div>
+          </div>
+          <p style={styles.weatherSuggestion}>{getWeatherSuggestion(weather.weather[0].id, weather.main.temp)}</p>
+        </div>
+      ) : null}
 
       {/* 파트너 감정 카드 */}
       <div style={styles.moodCard}>
@@ -421,6 +469,22 @@ const styles = {
   greeting: { fontSize: 13, color: '#9E9083', margin: 0 },
   name: { fontSize: 22, fontWeight: 800, margin: '2px 0 0', color: '#2D2D2D', letterSpacing: -0.5 },
   avatar: { width: 44, height: 44, borderRadius: 22, border: '2px solid #EDE8E3', flexShrink: 0 },
+
+  weatherCard: {
+    background: 'linear-gradient(135deg, #E3F2FD, #B3E5FC)',
+    borderRadius: 20, padding: '14px 18px', marginBottom: 14,
+    boxShadow: '0 2px 10px rgba(66,165,245,0.15)',
+  },
+  weatherMain: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 },
+  weatherIconWrap: {
+    width: 44, height: 44, borderRadius: 22,
+    background: 'rgba(255,255,255,0.75)',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)', flexShrink: 0,
+  },
+  weatherTemp: { fontSize: 22, fontWeight: 800, margin: 0, color: '#1A3A5C' },
+  weatherDesc: { fontSize: 12, color: '#5C7FA3', margin: '2px 0 0' },
+  weatherSuggestion: { fontSize: 13, color: '#2D4A6A', fontWeight: 500, margin: 0 },
 
   moodCard: {
     background: '#FDFAF7', borderRadius: 20, padding: '14px 16px', marginBottom: 14,

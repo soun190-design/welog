@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { MapPin } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useCouple } from '../contexts/CoupleContext';
 import {
@@ -61,6 +62,11 @@ export default function SchedulePage() {
   const [newCatColor, setNewCatColor] = useState(COLORS[0]);
   const [saving, setSaving] = useState(false);
 
+  const [placeQuery, setPlaceQuery] = useState('');
+  const [placeResults, setPlaceResults] = useState([]);
+  const [placeLoading, setPlaceLoading] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState(null);
+
   var loadData = useCallback(async function() {
     if (!couple) return;
     try {
@@ -75,6 +81,18 @@ export default function SchedulePage() {
   }, [couple]);
 
   useEffect(function() { loadData(); }, [loadData]);
+
+  var handlePlaceSearch = async function() {
+    if (!placeQuery.trim()) return;
+    setPlaceLoading(true);
+    setPlaceResults([]);
+    try {
+      var r = await fetch('/api/places?query=' + encodeURIComponent(placeQuery));
+      var data = await r.json();
+      setPlaceResults((data.documents || []).slice(0, 5));
+    } catch (e) { console.error(e); }
+    finally { setPlaceLoading(false); }
+  };
 
   var handleAddCategory = async function() {
     if (!newCatName.trim() || !couple) return;
@@ -98,14 +116,16 @@ export default function SchedulePage() {
         title: newTitle,
         datetime: newDate + (newTime ? 'T' + newTime : ''),
         memo: newMemo,
+        place: selectedPlace ? { name: selectedPlace.place_name, address: selectedPlace.address_name } : null,
         categoryId: newCategoryId,
         isRecurring: newIsRecurring,
         recurringType: newIsRecurring ? newRecurringType : null,
         authorId: user.uid,
         createdAt: serverTimestamp(),
       });
-setNewTitle(''); setNewDate(''); setNewTime('');
+      setNewTitle(''); setNewDate(''); setNewTime('');
       setNewMemo(''); setNewCategoryId(''); setNewIsRecurring(false);
+      setPlaceQuery(''); setPlaceResults([]); setSelectedPlace(null);
       setShowAdd(false);
       await loadData();
       var partnerUid = couple && couple.members && couple.members.find(function(m) { return m !== user.uid; });
@@ -287,6 +307,9 @@ setNewTitle(''); setNewDate(''); setNewTime('');
                       <p style={styles.scheduleTime}>{s.datetime.substring(11, 16)}</p>
                     ) : null}
                     {s.memo ? <p style={styles.scheduleMemo}>{s.memo}</p> : null}
+                    {s.place && s.place.name ? (
+                      <p style={styles.scheduleMemo}>📍 {s.place.name} · {s.place.address}</p>
+                    ) : null}
                     {s.isRecurring ? <span style={styles.recurringBadge}>반복</span> : null}
                   </div>
                   <button style={styles.deleteBtn} onClick={function() { handleDeleteSchedule(s.id); }}>✕</button>
@@ -330,12 +353,48 @@ setNewTitle(''); setNewDate(''); setNewTime('');
           <div style={styles.modalCard}>
             <div style={styles.modalHeader}>
               <span style={styles.modalTitle}>일정 추가</span>
-              <button style={styles.closeBtn} onClick={function() { setShowAdd(false); }}>✕</button>
+              <button style={styles.closeBtn} onClick={function() { setShowAdd(false); setPlaceQuery(''); setPlaceResults([]); setSelectedPlace(null); }}>✕</button>
             </div>
             <input style={styles.input} placeholder="일정 제목" value={newTitle} onChange={function(e) { setNewTitle(e.target.value); }} />
             <input style={styles.input} type="date" value={newDate} onChange={function(e) { setNewDate(e.target.value); }} />
             <input style={styles.input} type="time" value={newTime} onChange={function(e) { setNewTime(e.target.value); }} />
             <input style={styles.input} placeholder="메모 (선택)" value={newMemo} onChange={function(e) { setNewMemo(e.target.value); }} />
+            <div style={styles.placeSearchRow}>
+              <input
+                style={styles.placeInput}
+                placeholder="장소 검색 (선택)"
+                value={placeQuery}
+                onChange={function(e) { setPlaceQuery(e.target.value); setSelectedPlace(null); }}
+                onKeyDown={function(e) { if (e.key === 'Enter') handlePlaceSearch(); }}
+              />
+              <button style={styles.placeSearchBtn} onClick={handlePlaceSearch} disabled={placeLoading}>
+                {placeLoading ? '...' : '검색'}
+              </button>
+            </div>
+            {selectedPlace ? (
+              <div style={styles.selectedPlaceBox}>
+                <MapPin size={14} color="#FF6B6B" strokeWidth={1.5} />
+                <span style={styles.selectedPlaceName}>{selectedPlace.place_name}</span>
+                <span style={styles.selectedPlaceAddr}>{selectedPlace.address_name}</span>
+                <button style={styles.placeRemoveBtn} onClick={function() { setSelectedPlace(null); setPlaceQuery(''); }}>✕</button>
+              </div>
+            ) : null}
+            {placeResults.length > 0 && !selectedPlace ? (
+              <div style={styles.placeResultList}>
+                {placeResults.map(function(place, i) {
+                  return (
+                    <button
+                      key={i}
+                      style={styles.placeResultItem}
+                      onClick={function() { setSelectedPlace(place); setPlaceResults([]); setPlaceQuery(place.place_name); }}
+                    >
+                      <p style={styles.placeResultName}>{place.place_name}</p>
+                      <p style={styles.placeResultAddr}>{place.address_name}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
 
             <p style={styles.inputLabel}>카테고리</p>
             <div style={styles.catRow}>
@@ -571,4 +630,30 @@ const styles = {
   catColorDot: { width: 12, height: 12, borderRadius: 6 },
   catName: { fontSize: 14, color: '#2D2D2D' },
   emptyText: { color: '#9E9083', fontSize: 14, textAlign: 'center', padding: '16px 0' },
+
+  placeSearchRow: { display: 'flex', gap: 8, marginBottom: 8 },
+  placeInput: {
+    flex: 1, padding: 12, border: '1px solid #EDE8E3',
+    borderRadius: 12, fontSize: 14, outline: 'none', fontFamily: 'inherit', background: '#FDFAF7',
+  },
+  placeSearchBtn: {
+    padding: '12px 16px', background: '#5C7FA3', color: 'white',
+    border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
+  },
+  placeResultList: {
+    border: '1px solid #EDE8E3', borderRadius: 12, overflow: 'hidden', marginBottom: 8,
+  },
+  placeResultItem: {
+    width: '100%', padding: '10px 12px', background: '#FDFAF7',
+    border: 'none', borderBottom: '1px solid #EDE8E3', cursor: 'pointer', textAlign: 'left',
+  },
+  placeResultName: { fontSize: 13, fontWeight: 600, color: '#2D2D2D', margin: 0 },
+  placeResultAddr: { fontSize: 11, color: '#9E9083', margin: '2px 0 0' },
+  selectedPlaceBox: {
+    display: 'flex', alignItems: 'center', gap: 6,
+    background: '#FFF0EE', borderRadius: 10, padding: '8px 12px', marginBottom: 8, flexWrap: 'wrap',
+  },
+  selectedPlaceName: { fontSize: 13, fontWeight: 600, color: '#FF6B6B', flex: 1 },
+  selectedPlaceAddr: { fontSize: 11, color: '#9E9083' },
+  placeRemoveBtn: { background: 'none', border: 'none', color: '#C4BAB1', cursor: 'pointer', fontSize: 14, padding: 0 },
 };
